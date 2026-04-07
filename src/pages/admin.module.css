@@ -1,0 +1,204 @@
+/* ─── Shared page layout ─── */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ─── Grids ─── */
+.grid2 {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+}
+.grid3 {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.gridLangs {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+  .gridLangs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ─── Tables ─── */
+.tableScroll { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; }
+.table th,
+.table td {
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  padding: 10px 12px;
+  font-size: 14px;
+}
+.table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.table tbody tr { transition: background var(--transition-fast); }
+.table tbody tr:hover { background: var(--bg-hover); }
+.table tbody tr:last-child td { border-bottom: none; }
+
+.textCell {
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nowrap { white-space: nowrap; }
+
+/* ─── Actions row ─── */
+.actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+/* ─── Toolbar row ─── */
+.toolbarRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+/* Challenge monitoring — filters stay one row (Input wrapper is width:100% in flex) */
+.challengeMonitorFilters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 200px));
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+  .challengeMonitorFilters {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Lists ─── */
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.listItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+}
+.textButton {
+  color: var(--text-primary);
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex: 1;
+  padding: 0;
+}
+
+/* ─── Image preview ─── */
+.previewRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.previewImg {
+  max-height: 100px;
+  max-width: 160px;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  background: var(--bg-tertiary);
+}
+.thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+}
+
+/* ─── Users ─── */
+.userAvatarCell { width: 44px; }
+.userAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brand-accent);
+  overflow: hidden;
+}
+.userAvatar img { width: 100%; height: 100%; object-fit: cover; }
+.emailCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+/* ─── Detail modal ─── */
+.detailDl {
+  display: grid;
+  grid-template-columns: minmax(110px, 160px) 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 14px;
+}
+.detailDl dt { color: var(--text-muted); font-weight: 600; }
+.detailDl dd { margin: 0; word-break: break-word; }
+
+/* ─── Progress ─── */
+.progressBlock { margin-top: 16px; }
+.progressLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.progressTrack {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-accent), var(--brand-accent-deep));
+  transition: width 0.35s ease;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .grid3, .grid2 { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,2186 @@
+{
+  "info": {
+    "name": "Bonoos API",
+    "description": "Bonoos API — Postman (kod bilan sinxron).\n\nUMUMIY\n• Muvaffaqiyatli JSON: ko‘pincha {\"data\": ...} (GET /health va Payme webhook — to‘g‘ridan-to‘g‘ri JSON).\n• Xato: {\"error\": \"matn\"}.\n• /api/v1 (Payme dan tashqari): sarlavha x-uuid.\n• Himoya: Authorization: Bearer <access_token>.\n• JSONda ortiqcha maydonlar 400 (DisallowUnknownFields).\n\nCLIENT phone: 9 raqam, masalan 901234567 (+998 yo‘q).\n\nADMIN bootstrap: X-Admin-Create-Key + /auth/admin/register.\n\nENUM: subscription status 0/1/2; payment status 0–3; payment provider 1 payme; notification scope 1 shaxsiy, 2 umumiy.\n",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "bonoos-api-v2-full"
+  },
+  "item": [
+    {
+      "name": "00 - Umumiy",
+      "item": [
+        {
+          "name": "Misol javob (categories)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/categories",
+            "description": "Javob: {\"data\":[...]} — har bir endpoint uchun quyidagi bloklarda aniq yozilgan."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - System",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health",
+            "description": "{\"status\":\"ok\"} — envelope yo‘q."
+          }
+        },
+        {
+          "name": "Payme webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/payme",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"CheckPerformTransaction\",\n  \"params\": {\n    \"account\": {\n      \"payment_id\": \"1\"\n    },\n    \"amount\": 9900000\n  }\n}"
+            },
+            "description": "Tashqi provayder. x-uuid yo‘q. Haqiqiy metodlar Payme hujjatiga mos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Auth",
+      "item": [
+        {
+          "name": "Client",
+          "item": [
+            {
+              "name": "Send OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/client/send-otp",
+                "description": "Body: phone (9 raqam). Javob data: {\"phone\",\"message\"}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"901234567\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Verify OTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/client/verify-otp",
+                "description": "Javob data: tokens {access_token, refresh_token, expires_in}, user_id, is_new_user",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"phone\": \"901234567\",\n  \"code\": \"123456\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Session",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/client/session",
+                "description": "Bearer: verify-otp access_token. Javob data: tokens",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"device_id\": \"postman-device-1\",\n  \"device_name\": \"Postman\",\n  \"session_type\": 2,\n  \"fcm_token\": \"placeholder\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Refresh token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/client/refresh-token",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refresh_token\": \"{{client_refresh_token}}\",\n  \"device_id\": \"postman-device-1\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/client/logout",
+                "description": "Javob data: {\"message\"}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refresh_token\": \"{{client_refresh_token}}\",\n  \"device_id\": \"postman-device-1\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin",
+          "item": [
+            {
+              "name": "Register (bootstrap)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "X-Admin-Create-Key",
+                    "value": "{{admin_create_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/admin/register",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Super Admin\",\n  \"phone\": \"901111111\",\n  \"username\": \"admin\",\n  \"password\": \"admin12345\",\n  \"avatar\": \"\"\n}"
+                },
+                "description": "Javob data: id, username, message. 404 agar bootstrap o‘chiq."
+              }
+            },
+            {
+              "name": "Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/admin/login",
+                "description": "Javob data: tokens, issued_at",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin12345\",\n  \"device_id\": \"admin-web-1\",\n  \"device_name\": \"Postman\",\n  \"session_type\": 2\n}"
+                }
+              }
+            },
+            {
+              "name": "Refresh token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/admin/refresh-token",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refresh_token\": \"{{admin_refresh_token}}\",\n  \"device_id\": \"admin-web-1\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/auth/admin/logout",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refresh_token\": \"{{admin_refresh_token}}\",\n  \"device_id\": \"admin-web-1\"\n}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Public (x-uuid)",
+      "item": [
+        {
+          "name": "Regions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/regions",
+            "description": "data: [{id, name_uz, name_ru?, name_en?, remote_id?}]"
+          }
+        },
+        {
+          "name": "Cities by region",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/regions/{{region_id}}/cities"
+          }
+        },
+        {
+          "name": "Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/categories"
+          }
+        },
+        {
+          "name": "Auditions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auditions?category_id={{category_id}}",
+            "description": "Query category_id majburiy."
+          }
+        },
+        {
+          "name": "Audition detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/auditions/{{audition_id}}"
+          }
+        },
+        {
+          "name": "Quotes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/quotes"
+          }
+        },
+        {
+          "name": "Videos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/videos"
+          }
+        },
+        {
+          "name": "Topics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/topics"
+          }
+        },
+        {
+          "name": "Topic questions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/topics/{{topic_id}}/questions"
+          }
+        },
+        {
+          "name": "Challenges",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/challenges"
+          }
+        },
+        {
+          "name": "Challenge detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/challenges/{{challenge_id}}",
+            "description": "data: {challenge, meditations}"
+          }
+        },
+        {
+          "name": "Plans",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-uuid",
+                "value": "{{x_uuid}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/v1/plans"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Client (JWT)",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Me",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/profile/me"
+              }
+            },
+            {
+              "name": "Update profile",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/profile/update",
+                "description": "full_name majburiy. birthday YYYY-MM-DD.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Foydalanuvchi\",\n  \"email\": \"user@example.com\",\n  \"avatar\": \"\",\n  \"birthday\": \"1990-01-15\",\n  \"bio\": \"\",\n  \"region_id\": 1\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Catalog",
+          "item": [
+            {
+              "name": "Record listen",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/auditions/{{audition_id}}/listen",
+                "description": "duration majburiy (>=0). day ixtiyoriy RFC3339.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"duration\": 120,\n  \"audition_type\": 0,\n  \"day\": \"2026-04-05T00:00:00Z\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Toggle favorite",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/auditions/{{audition_id}}/favorite",
+                "description": "data: {favorited: bool}"
+              }
+            },
+            {
+              "name": "Favorites list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/favorites/auditions"
+              }
+            },
+            {
+              "name": "Daily summary",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/daily-summary?day=2026-04-05"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Challenges",
+          "item": [
+            {
+              "name": "Progress",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/challenges/{{challenge_id}}/progress"
+              }
+            },
+            {
+              "name": "Complete step",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/challenges/{{challenge_id}}/steps",
+                "description": "audition_id majburiy. Javob data: {status: ok}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"audition_id\": 1,\n  \"day\": \"2026-04-05T00:00:00Z\",\n  \"is_completed\": true\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "item": [
+            {
+              "name": "Feed",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/notifications"
+              }
+            },
+            {
+              "name": "Mark read",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/notifications/read",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"notification_id\": 1,\n  \"scope\": 1\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Conversation",
+          "item": [
+            {
+              "name": "Toggle favorite question",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/questions/{{question_id}}/favorite"
+              }
+            },
+            {
+              "name": "Favorite questions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/client/favorite-questions"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Subscription",
+          "item": [
+            {
+              "name": "Subscribe",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{client_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/plans/subscribe",
+                "description": "Javob data: payment_id, payment_link",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"plan_id\": 1\n}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Admin (JWT)",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Me",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/profile/me"
+              }
+            },
+            {
+              "name": "Update profile",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/profile/update",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Admin\",\n  \"phone\": \"902222222\",\n  \"username\": \"admin\",\n  \"avatar\": \"\",\n  \"new_password\": \"\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Create admin",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/admins",
+                "description": "201 data: {id}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"full_name\": \"Manager\",\n  \"phone\": \"903333333\",\n  \"username\": \"manager\",\n  \"password\": \"manager12345\",\n  \"avatar\": \"\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Analytics & users",
+          "item": [
+            {
+              "name": "Analytics summary",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/analytics/summary",
+                "description": "data: barcha analytics maydonlari (users, subscriptions, payments 30d, ...)."
+              }
+            },
+            {
+              "name": "Users list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/users?limit=50&offset=0&phone=90",
+                "description": "data: {items, total}"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Challenge monitoring",
+          "item": [
+            {
+              "name": "Challenge actions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenge-actions?challenge_id=1&limit=50&offset=0",
+                "description": "Query: challenge_id, user_id, is_completed, day_from, day_to, limit, offset. data: {items, total}"
+              }
+            },
+            {
+              "name": "Challenge actions summary",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges/{{challenge_id}}/challenge-actions/summary",
+                "description": "data: distinct_users, total_rows, completed_rows"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Plans & billing",
+          "item": [
+            {
+              "name": "Plans list",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/plans"
+              }
+            },
+            {
+              "name": "Create plan",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/plans",
+                "description": "201 data: {\"status\":\"created\"}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"30 kun\",\n  \"duration_days\": 30,\n  \"price\": 99000,\n  \"description\": \"Tarif\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update plan",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/plans/{{plan_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"30 kun\",\n  \"duration_days\": 30,\n  \"price\": 119000,\n  \"description\": \"\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete plan",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/plans/{{plan_id}}",
+                "description": "204"
+              }
+            },
+            {
+              "name": "User subscriptions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/user-subscriptions?limit=50&offset=0",
+                "description": "data: {items (plan_name bilan), total}"
+              }
+            },
+            {
+              "name": "Patch subscription",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/user-subscriptions/{{user_subscription_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"end_at\": \"2026-12-31T23:59:59Z\",\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Payments",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/payments?limit=50&offset=0"
+              }
+            },
+            {
+              "name": "Patch payment",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/payments/{{payment_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"payment_status\": 1,\n  \"transaction_id\": \"tx_123\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Catalog",
+          "item": [
+            {
+              "name": "Categories",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/categories"
+              }
+            },
+            {
+              "name": "Create category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/categories",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Kat\",\n  \"description\": \"d\",\n  \"sort\": 0\n}"
+                }
+              }
+            },
+            {
+              "name": "Update category",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/categories/{{category_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Kat2\",\n  \"sort\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete category",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/categories/{{category_id}}",
+                "description": "204"
+              }
+            },
+            {
+              "name": "Create audition",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/auditions",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category_id\": 1,\n  \"image\": \"https://ex.com/i.jpg\",\n  \"type\": 0,\n  \"audio\": \"auditions/audio/x.mp3\",\n  \"duration\": 300,\n  \"text\": \"Matn\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update audition",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/auditions/{{audition_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"category_id\": 1,\n  \"type\": 0,\n  \"duration\": 300\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete audition",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/auditions/{{audition_id}}",
+                "description": "204"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Challenges",
+          "item": [
+            {
+              "name": "Challenge types",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenge-types"
+              }
+            },
+            {
+              "name": "Create type",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenge-types",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"7 kun\",\n  \"days\": 7,\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update type",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenge-types/{{challenge_type_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"7 kun\",\n  \"days\": 7,\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete type",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenge-types/{{challenge_type_id}}",
+                "description": "204"
+              }
+            },
+            {
+              "name": "Challenges",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges"
+              }
+            },
+            {
+              "name": "Create challenge",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challenge_type_id\": 1,\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update challenge",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges/{{challenge_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"challenge_type_id\": 1,\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete challenge",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges/{{challenge_id}}",
+                "description": "204"
+              }
+            },
+            {
+              "name": "Meditations",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges/{{challenge_id}}/meditations"
+              }
+            },
+            {
+              "name": "Add meditation",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges/{{challenge_id}}/meditations",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"audition_id\": 1,\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Remove meditation",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/challenges/{{challenge_id}}/meditations/{{meditation_id}}",
+                "description": "204"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Media",
+          "item": [
+            {
+              "name": "Quotes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/quotes"
+              }
+            },
+            {
+              "name": "Create quote",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/quotes",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"Iqtibos\",\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update quote",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/quotes/{{quote_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"Yangi\",\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete quote",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/quotes/{{quote_id}}",
+                "description": "204"
+              }
+            },
+            {
+              "name": "Videos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/videos"
+              }
+            },
+            {
+              "name": "Create video",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/videos",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"V\",\n  \"url\": \"https://ex.com/v.mp4\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Update video",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/videos/{{video_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"V\",\n  \"url\": \"https://ex.com/v.mp4\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete video",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/videos/{{video_id}}",
+                "description": "204"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Notifications",
+          "item": [
+            {
+              "name": "Send user",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/notifications/users",
+                "description": "201 data: {status: ok}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_id\": 1,\n  \"type\": 0,\n  \"title\": \"T\",\n  \"content\": \"C\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Common create",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/notifications/common",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": 0,\n  \"title\": \"T\",\n  \"content\": \"C\",\n  \"expires_at\": \"2026-12-31T23:59:59Z\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Common update",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/notifications/common/{{notification_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"type\": 0,\n  \"title\": \"T2\",\n  \"content\": \"C2\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Common delete",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/notifications/common/{{notification_id}}",
+                "description": "204"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Conversation",
+          "item": [
+            {
+              "name": "Topics",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics"
+              }
+            },
+            {
+              "name": "Create topic",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Mavzu\",\n  \"content\": {},\n  \"status\": 1,\n  \"sort\": 0\n}"
+                }
+              }
+            },
+            {
+              "name": "Update topic",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics/{{topic_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Mavzu\",\n  \"content\": {\n    \"x\": 1\n  },\n  \"status\": 1,\n  \"sort\": 0\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete topic",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics/{{topic_id}}",
+                "description": "204"
+              }
+            },
+            {
+              "name": "Questions",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics/{{topic_id}}/questions"
+              }
+            },
+            {
+              "name": "Create question",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics/{{topic_id}}/questions",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"Savol?\",\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Update question",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics/{{topic_id}}/questions/{{question_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"text\": \"Savol?\",\n  \"status\": 1\n}"
+                }
+              }
+            },
+            {
+              "name": "Delete question",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/topics/{{topic_id}}/questions/{{question_id}}",
+                "description": "204"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Storage",
+          "item": [
+            {
+              "name": "Upload single",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/upload?prefix=auditions/images",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "file",
+                      "type": "file",
+                      "src": ""
+                    }
+                  ]
+                },
+                "description": "multipart: file. Query bucket, prefix. data: url, key, bucket"
+              }
+            },
+            {
+              "name": "Upload batch",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/upload/batch?prefix=uploads",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "files",
+                      "type": "file",
+                      "src": ""
+                    },
+                    {
+                      "key": "files",
+                      "type": "file",
+                      "src": ""
+                    }
+                  ]
+                },
+                "description": "multipart: files (bir xil nom, bir nechta fayl). data: [Result]"
+              }
+            },
+            {
+              "name": "Storage buckets",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/storage/buckets",
+                "description": "data: {\"buckets\":[...]}"
+              }
+            },
+            {
+              "name": "Storage browse",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/storage/browse?prefix=auditions&limit=500"
+              }
+            },
+            {
+              "name": "Storage objects",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/storage/objects?prefix=auditions/images&limit=50"
+              }
+            },
+            {
+              "name": "Delete object",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/storage/objects/delete",
+                "description": "204",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bucket\": \"\",\n  \"key\": \"path/to/obj.jpg\"\n}"
+                }
+              }
+            },
+            {
+              "name": "Create folder",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "x-uuid",
+                    "value": "{{x_uuid}}"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{baseUrl}}/api/v1/admin/storage/folders",
+                "description": "201 data: {key}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"bucket\": \"\",\n  \"path\": \"auditions/new\"\n}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "x_uuid",
+      "value": "00000000-0000-0000-0000-000000000001"
+    },
+    {
+      "key": "admin_create_key",
+      "value": ""
+    },
+    {
+      "key": "client_phone",
+      "value": "901234567"
+    },
+    {
+      "key": "client_access_token",
+      "value": ""
+    },
+    {
+      "key": "client_refresh_token",
+      "value": ""
+    },
+    {
+      "key": "admin_access_token",
+      "value": ""
+    },
+    {
+      "key": "admin_refresh_token",
+      "value": ""
+    },
+    {
+      "key": "region_id",
+      "value": "1"
+    },
+    {
+      "key": "category_id",
+      "value": "1"
+    },
+    {
+      "key": "audition_id",
+      "value": "1"
+    },
+    {
+      "key": "challenge_type_id",
+      "value": "1"
+    },
+    {
+      "key": "challenge_id",
+      "value": "1"
+    },
+    {
+      "key": "meditation_id",
+      "value": "1"
+    },
+    {
+      "key": "plan_id",
+      "value": "1"
+    },
+    {
+      "key": "user_subscription_id",
+      "value": "1"
+    },
+    {
+      "key": "payment_id",
+      "value": "1"
+    },
+    {
+      "key": "quote_id",
+      "value": "1"
+    },
+    {
+      "key": "video_id",
+      "value": "1"
+    },
+    {
+      "key": "notification_id",
+      "value": "1"
+    },
+    {
+      "key": "topic_id",
+      "value": "1"
+    },
+    {
+      "key": "question_id",
+      "value": "1"
+    }
+  ]
+}
