@@ -107,9 +107,6 @@ export const ProfilePage = () => {
         <div className={styles.formsColumn}>
           <Card className={styles.formCard}>
             <h2 className={styles.cardTitle}><Palette size={20} style={{ verticalAlign: 'middle', marginRight: 8 }} />Interfeys mavzusi</h2>
-            <p className={styles.themeDesc}>
-              Standart — Bonoos (siyohrang fon va oltin urg&apos;u). Ocean — avvalgi ko&apos;k admin palitrasi (#001b26, #00a8e8). Tanlov brauzeringizda saqlanadi.
-            </p>
             <div className={styles.themeRow} role="group" aria-label="Mavzu tanlash">
               <button
                 type="button"
