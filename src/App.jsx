@@ -15,6 +15,7 @@ import { UsersPage } from './pages/Users/UsersPage';
 import { ChallengeMonitoringPage } from './pages/ChallengeMonitoring/ChallengeMonitoringPage';
 import { SubscriptionsPage } from './pages/Subscriptions/SubscriptionsPage';
 import { PaymentsPage } from './pages/Payments/PaymentsPage';
+import { NotificationsPage } from './pages/Notifications/NotificationsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +91,10 @@ const router = createBrowserRouter([
       {
         path: 'challenges',
         element: <ChallengesPage />,
+      },
+      {
+        path: 'notifications',
+        element: <NotificationsPage />,
       },
       {
         path: 'profile',

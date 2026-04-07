@@ -507,6 +507,36 @@ export const quotesApi = {
   },
 };
 
+export const notificationsApi = {
+  /** POST /api/v1/admin/notifications/users — body: { user_id, type, title, content } */
+  sendToUser: async (payload) => {
+    const response = await apiClient.post('/api/v1/admin/notifications/users', payload);
+    return response.data?.data;
+  },
+  /** POST /api/v1/admin/notifications/common — body: { type, title, content, expires_at? } */
+  createCommon: async (payload) => {
+    const response = await apiClient.post('/api/v1/admin/notifications/common', payload);
+    return response.data?.data;
+  },
+  /** PUT /api/v1/admin/notifications/common/:id */
+  updateCommon: async (id, payload) => {
+    const response = await apiClient.put(`/api/v1/admin/notifications/common/${id}`, payload);
+    return response.data?.data;
+  },
+  /** DELETE /api/v1/admin/notifications/common/:id — 204 */
+  removeCommon: async (id) => {
+    await apiClient.delete(`/api/v1/admin/notifications/common/${id}`);
+  },
+  /** GET /api/v1/admin/notifications/common — list (may not exist; handled gracefully) */
+  listCommon: async () => {
+    const response = await apiClient.get('/api/v1/admin/notifications/common');
+    const d = response.data?.data;
+    if (Array.isArray(d)) return d;
+    if (Array.isArray(d?.items)) return d.items;
+    return [];
+  },
+};
+
 export const questionsApi = {
   listByTopic: async (topicId) => {
     const response = await apiClient.get(`/api/v1/admin/topics/${topicId}/questions`);

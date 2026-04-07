@@ -16,6 +16,7 @@ import {
   Activity,
   RefreshCw,
   Banknote,
+  Bell,
 } from 'lucide-react';
 import { useLogout } from '../../hooks/useApi';
 import { useAuthStore, useUIStore, useThemeStore } from '../../store';
@@ -31,6 +32,7 @@ const navItems = [
   { path: '/plans', icon: CreditCard, label: 'Plans' },
   { path: '/subscriptions', icon: RefreshCw, label: 'Obunalar' },
   { path: '/payments', icon: Banknote, label: 'To‘lovlar' },
+  { path: '/notifications', icon: Bell, label: 'Bildirishnomalar' },
   { path: '/quotes', icon: Quote, label: 'Quotes' },
   { path: '/challenges', icon: Trophy, label: 'Challenge’lar' },
 ];

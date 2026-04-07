@@ -11,6 +11,7 @@ import {
   challengeActionsApi,
   challengeTypesApi,
   challengesApi,
+  notificationsApi,
   plansApi,
   questionsApi,
   quotesApi,
@@ -176,10 +177,11 @@ export const useAnalyticsSummary = () =>
     queryFn: analyticsApi.summary,
   });
 
-export const useAdminUsers = (params) =>
+export const useAdminUsers = (params, enabled = true) =>
   useQuery({
     queryKey: ['admin-users', params],
-    queryFn: () => adminUsersApi.list(params),
+    queryFn: () => adminUsersApi.list(params || {}),
+    enabled,
   });
 
 export const useChallengeActionsList = (params, enabled = true) =>
@@ -483,5 +485,40 @@ export const useRemoveChallengeMeditation = () => {
       challengesApi.removeMeditation(challengeId, meditationId),
     onSuccess: (_d, v) =>
       qc.invalidateQueries({ queryKey: ['challenge-meditations', v.challengeId] }),
+  });
+};
+
+export const useCommonNotifications = (enabled = true) =>
+  useQuery({
+    queryKey: ['notifications-common'],
+    queryFn: notificationsApi.listCommon,
+    enabled,
+    retry: false,
+  });
+
+export const useSendNotificationToUser = () =>
+  useMutation({ mutationFn: notificationsApi.sendToUser });
+
+export const useCreateCommonNotification = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: notificationsApi.createCommon,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications-common'] }),
+  });
+};
+
+export const useUpdateCommonNotification = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, payload }) => notificationsApi.updateCommon(id, payload),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications-common'] }),
+  });
+};
+
+export const useDeleteCommonNotification = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: notificationsApi.removeCommon,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notifications-common'] }),
   });
 };
