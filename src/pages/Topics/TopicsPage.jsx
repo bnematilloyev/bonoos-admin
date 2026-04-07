@@ -77,7 +77,12 @@ export const TopicsPage = () => {
       content: { uz: topicForm.contentUz ?? '', ru: topicForm.contentRu ?? '', en: topicForm.contentEn ?? '' },
     };
     if (topicForm.description.trim()) payload.description = topicForm.description.trim();
-    if (topicForm.status !== '') { const n = Number(topicForm.status); if (!Number.isNaN(n)) payload.status = n; }
+    if (topicModal === 'create') {
+      payload.status = 1;
+    } else {
+      const sn = Number(topicForm.status);
+      if (!Number.isNaN(sn)) payload.status = sn;
+    }
     if (topicForm.sort !== '') { const n = Number(topicForm.sort); if (!Number.isNaN(n)) payload.sort = n; }
 
     try {
@@ -215,10 +220,7 @@ export const TopicsPage = () => {
             <Textarea label="Русский (ru)" value={topicForm.contentRu} onChange={(e) => setTopicField('contentRu', e.target.value)} rows={3} />
             <Textarea label="English (en)" value={topicForm.contentEn} onChange={(e) => setTopicField('contentEn', e.target.value)} rows={3} />
           </div>
-          <div className={styles.grid2}>
-            <Input label="Status" type="number" value={topicForm.status} onChange={(e) => setTopicField('status', e.target.value)} />
-            <Input label="Sort" type="number" value={topicForm.sort} onChange={(e) => setTopicField('sort', e.target.value)} />
-          </div>
+          <Input label="Sort" type="number" value={topicForm.sort} onChange={(e) => setTopicField('sort', e.target.value)} />
         </FormModal>
       )}
 

@@ -39,7 +39,9 @@ export const QuotesPage = () => {
   const buildPayload = () => {
     const payload = { text: form.text.trim() };
     if (form.image.trim()) payload.image = form.image.trim();
-    if (form.status !== '' && form.status != null) {
+    if (modal === 'create') {
+      payload.status = 1;
+    } else if (form.status !== '' && form.status != null) {
       const n = Number(form.status);
       if (!Number.isNaN(n)) payload.status = n;
     }
@@ -153,7 +155,6 @@ export const QuotesPage = () => {
               <img className={styles.previewImg} src={quoteImageSrc(form.image)} alt="" />
             </div>
           )}
-          <Input label="Status" type="number" value={form.status} onChange={(e) => setField('status', e.target.value)} placeholder="Ixtiyoriy" />
         </FormModal>
       )}
 

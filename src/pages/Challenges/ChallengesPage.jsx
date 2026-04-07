@@ -329,9 +329,9 @@ export const ChallengesPage = () => {
     e.preventDefault();
     const name = typeForm.name.trim();
     const days = Number(typeForm.days);
-    const status = Number(typeForm.status);
     if (!name) { toast('Tur nomi majburiy', 'error'); return; }
     if (!Number.isFinite(days) || days < 1) { toast('Kunlar musbat son bo\'lsin', 'error'); return; }
+    const status = typeModal === 'create' ? 1 : Number(typeForm.status);
     try {
       if (typeModal === 'create') { await createType.mutateAsync({ name, days, status }); toast('Tur yaratildi'); }
       else { await updateType.mutateAsync({ id: typeModal.id, payload: { name, days, status } }); toast('Tur yangilandi'); }
@@ -358,7 +358,8 @@ export const ChallengesPage = () => {
     if (!raw) { toast('Tugash vaqti majburiy', 'error'); return; }
     const ms = Date.parse(raw);
     if (Number.isNaN(ms)) { toast('Noto\'g\'ri vaqt', 'error'); return; }
-    const payload = { challenge_type_id: Number(tid), status: Number(challengeForm.status) || 1, finish_at: new Date(ms).toISOString() };
+    const status = challengeModal === 'create' ? 1 : Number(challengeForm.status) || 1;
+    const payload = { challenge_type_id: Number(tid), status, finish_at: new Date(ms).toISOString() };
     try {
       if (challengeModal === 'create') {
         const res = await createChallenge.mutateAsync(payload);
@@ -523,7 +524,6 @@ export const ChallengesPage = () => {
           submitLabel={typeModal === 'create' ? 'Yaratish' : 'Saqlash'}>
           <Input label="Tur nomi" value={typeForm.name} onChange={(e) => setTypeForm((p) => ({ ...p, name: e.target.value }))} placeholder="Masalan: 7 kunlik" required />
           <Input label="Davomiyligi (kun)" type="number" min={1} value={typeForm.days} onChange={(e) => setTypeForm((p) => ({ ...p, days: e.target.value }))} required />
-          <Select label="Holat" options={[{ value: '1', label: 'Faol' }, { value: '0', label: 'Nofaol' }]} value={typeForm.status} onChange={(e) => setTypeForm((p) => ({ ...p, status: e.target.value }))} />
         </FormModal>
       )}
 
@@ -533,8 +533,6 @@ export const ChallengesPage = () => {
           submitLabel={challengeModal === 'create' ? 'Yaratish' : 'Saqlash'}>
           <Select label="Challenge turi" options={typeOptions} placeholder="Tur tanlang" value={challengeForm.challenge_type_id}
             onChange={(e) => setChallengeForm((p) => ({ ...p, challenge_type_id: e.target.value }))} />
-          <Select label="Holat" options={[{ value: '1', label: 'Faol' }, { value: '0', label: 'Nofaol' }]} value={challengeForm.status}
-            onChange={(e) => setChallengeForm((p) => ({ ...p, status: e.target.value }))} />
           <Input label="Tugash vaqti" type="datetime-local" value={challengeForm.finish_at}
             onChange={(e) => setChallengeForm((p) => ({ ...p, finish_at: e.target.value }))} />
         </FormModal>
