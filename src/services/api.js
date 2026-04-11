@@ -225,7 +225,7 @@ export const challengesApi = {
     const response = await apiClient.get(`/api/v1/admin/challenges/${challengeId}/meditations`);
     return normalizeList(response.data?.data);
   },
-  /** Body: backend talabiga qarab meditation_id yoki audition_id */
+  /** Body: `audition_id` yoki `meditation_id`; `day_index`, `sort`, `status` */
   addMeditation: async (challengeId, payload) => {
     const response = await apiClient.post(`/api/v1/admin/challenges/${challengeId}/meditations`, payload);
     return response.data?.data;

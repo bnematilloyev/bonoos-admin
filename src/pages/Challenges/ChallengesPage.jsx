@@ -87,6 +87,8 @@ function LinkMeditationModal({ challengeId, challengeName, onClose, onLinked }) 
   const [catId, setCatId] = useState('');
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState('');
+  const [dayIndex, setDayIndex] = useState('1');
+  const [sortOrder, setSortOrder] = useState('0');
   const { data: auditions = [], isLoading: audLoading } = useAuditions(catId || null);
   const addMed = useAddChallengeMeditation();
   const { show: toast, ToastRenderer } = useToast();
@@ -99,19 +101,32 @@ function LinkMeditationModal({ challengeId, challengeName, onClose, onLinked }) 
 
   const catOptions = categories.map((c) => ({ value: String(c.id), label: c.name }));
 
+  const linkPayloadBase = () => {
+    const di = Number(dayIndex);
+    const so = Number(sortOrder);
+    if (!Number.isFinite(di) || di < 1) return null;
+    if (!Number.isFinite(so) || so < 0) return null;
+    return { day_index: di, sort: so, status: 1 };
+  };
+
   const onLink = async () => {
     const n = Number(selectedId);
     if (!Number.isFinite(n) || n <= 0) return;
+    const extra = linkPayloadBase();
+    if (!extra) {
+      toast('Kun indeksi ≥ 1 va tartib ≥ 0 bo\'lsin', 'error');
+      return;
+    }
     try {
-      await addMed.mutateAsync({ challengeId, payload: { audition_id: n } });
+      await addMed.mutateAsync({ challengeId, payload: { audition_id: n, ...extra } });
       onLinked?.();
       onClose();
     } catch (err) {
       try {
-        await addMed.mutateAsync({ challengeId, payload: { meditation_id: n } });
+        await addMed.mutateAsync({ challengeId, payload: { meditation_id: n, ...extra } });
         onLinked?.();
         onClose();
-      } catch { toast(extractApiError(err), 'error'); }
+      } catch (e2) { toast(extractApiError(e2), 'error'); }
     }
   };
 
@@ -127,6 +142,13 @@ function LinkMeditationModal({ challengeId, challengeName, onClose, onLinked }) 
         {catId && (
           <Input placeholder="Qidirish..." leftIcon={<Search size={16} />} value={search} onChange={(e) => setSearch(e.target.value)} />
         )}
+      </div>
+
+      <div className={styles.linkParams}>
+        <Input label="Kun indeksi (day_index)" type="number" min={1} step={1} value={dayIndex}
+          onChange={(e) => setDayIndex(e.target.value)} />
+        <Input label="Tartib (sort)" type="number" min={0} step={1} value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)} />
       </div>
 
       <div className={styles.linkList}>
@@ -248,12 +270,17 @@ function ChallengeDetail({ challenge, types, onEdit, onDelete }) {
             {meditations.map((row) => {
               const { mid, title } = meditationDisplay(row);
               const delId = meditationRowId(row);
+              const dIdx = row.day_index ?? row.dayIndex ?? row.pivot?.day_index;
+              const sVal = row.sort ?? row.pivot?.sort;
+              const metaParts = [`ID ${mid}`];
+              if (dIdx !== undefined && dIdx !== null && dIdx !== '') metaParts.push(`kun ${dIdx}`);
+              if (sVal !== undefined && sVal !== null && sVal !== '') metaParts.push(`tartib ${sVal}`);
               return (
                 <li key={String(delId)} className={styles.medItem}>
                   <div className={styles.medItemIcon}><Music size={15} /></div>
                   <div className={styles.medItemBody}>
                     <span className={styles.medItemTitle}>{title || 'Nomsiz'}</span>
-                    <span className={styles.medItemSub}>ID {mid}</span>
+                    <span className={styles.medItemSub}>{metaParts.join(' · ')}</span>
                   </div>
                   <button type="button" className={styles.medRemoveBtn} title="Ajratish" disabled={removeMed.isPending}
                     onClick={() => {

@@ -475,6 +475,19 @@
   margin-bottom: 16px;
 }
 
+.linkParams {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 480px) {
+  .linkParams {
+    grid-template-columns: 1fr;
+  }
+}
+
 .linkList {
   max-height: 340px;
   overflow-y: auto;
