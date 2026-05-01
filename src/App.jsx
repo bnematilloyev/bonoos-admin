@@ -16,6 +16,7 @@ import { ChallengeMonitoringPage } from './pages/ChallengeMonitoring/ChallengeMo
 import { SubscriptionsPage } from './pages/Subscriptions/SubscriptionsPage';
 import { PaymentsPage } from './pages/Payments/PaymentsPage';
 import { NotificationsPage } from './pages/Notifications/NotificationsPage';
+import { ChatPage } from './pages/Chat/ChatPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +96,10 @@ const router = createBrowserRouter([
       {
         path: 'notifications',
         element: <NotificationsPage />,
+      },
+      {
+        path: 'chat',
+        element: <ChatPage />,
       },
       {
         path: 'profile',

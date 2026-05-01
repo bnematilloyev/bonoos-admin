@@ -17,6 +17,7 @@ import {
   RefreshCw,
   Banknote,
   Bell,
+  MessageCircle,
 } from 'lucide-react';
 import { useLogout } from '../../hooks/useApi';
 import { useAuthStore, useUIStore, useThemeStore } from '../../store';
@@ -26,7 +27,8 @@ import styles from './layout.module.css';
 const navItems = [
   { path: '/analytics', icon: BarChart3, label: 'Analitika' },
   { path: '/users', icon: Users, label: 'Foydalanuvchilar' },
-  { path: '/challenge-monitoring', icon: Activity, label: 'Challenge monitoring' },
+  { path: '/chat', icon: MessageCircle, label: 'Mijozlar chat' },
+  // { path: '/challenge-monitoring', icon: Activity, label: 'Challenge monitoring' },
   { path: '/categories', icon: FolderTree, label: 'Categories' },
   { path: '/topics', icon: MessagesSquare, label: 'Topics / Questions' },
   { path: '/plans', icon: CreditCard, label: 'Plans' },
@@ -34,7 +36,7 @@ const navItems = [
   { path: '/payments', icon: Banknote, label: 'To‘lovlar' },
   { path: '/notifications', icon: Bell, label: 'Bildirishnomalar' },
   { path: '/quotes', icon: Quote, label: 'Quotes' },
-  { path: '/challenges', icon: Trophy, label: 'Challenge’lar' },
+  // { path: '/challenges', icon: Trophy, label: 'Challenge’lar' },
 ];
 
 export const Sidebar = () => {

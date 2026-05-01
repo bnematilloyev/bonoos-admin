@@ -1,0 +1,370 @@
+.chatPage {
+  max-width: min(1420px, 100%);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.grid > * {
+  min-height: 0;
+}
+
+@media (max-width: 960px) {
+  .grid {
+    grid-template-columns: 1fr;
+    flex: 1;
+    min-height: min(70dvh, 560px);
+  }
+}
+
+.listCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px;
+  gap: 12px;
+}
+
+.listCardHead {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.listCardIcon {
+  color: var(--brand-accent);
+  flex-shrink: 0;
+}
+
+.listCardTitle {
+  font-weight: 600;
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.listLoadMore {
+  padding: 8px 0 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.skeletonStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.convList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.convBtn {
+  text-align: left;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary, var(--bg-card));
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  font: inherit;
+  color: var(--text-primary);
+}
+
+.convBtn:hover {
+  background: var(--bg-hover);
+}
+
+.convBtnActive {
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 0 1px rgba(var(--brand-accent-r), var(--brand-accent-g), var(--brand-accent-b), 0.28);
+  background: rgba(var(--brand-accent-r), var(--brand-accent-g), var(--brand-accent-b), 0.06);
+}
+
+.convBtnTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.convTitle {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.convStatus {
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.convMeta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.threadWrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.threadInner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.threadHeader {
+  flex-shrink: 0;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--bg-secondary, var(--bg-card));
+}
+
+.threadHeaderMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.threadAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(var(--brand-accent-r), var(--brand-accent-g), var(--brand-accent-b), 0.15);
+  color: var(--brand-accent);
+  border: 1px solid rgba(var(--brand-accent-r), var(--brand-accent-g), var(--brand-accent-b), 0.35);
+}
+
+.threadTitle {
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.threadMeta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.threadMetaDot {
+  opacity: 0.5;
+}
+
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.threadError {
+  color: var(--error);
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-primary, var(--bg-body));
+  -webkit-overflow-scrolling: touch;
+}
+
+.dateSep {
+  align-self: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  margin: 4px 0;
+}
+
+.msgRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.msgRowClient {
+  justify-content: flex-start;
+  align-self: flex-start;
+}
+
+.msgRowAgent {
+  justify-content: flex-end;
+  align-self: stretch;
+  flex-direction: row-reverse;
+  width: 100%;
+}
+
+/* Matn qancha bo‘lsa shuncha keng; lekin ekranni to‘ldirmaydi */
+.msgRowAgent .msgBlock {
+  width: fit-content;
+  max-width: min(78%, 520px);
+  margin-left: auto;
+}
+
+.msgAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.msgBlock {
+  max-width: min(78%, 520px);
+  min-width: 0;
+}
+
+.bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.bubbleText {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bubbleClient {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.bubbleAgent {
+  background: var(--brand-accent);
+  color: #fff;
+  border: 1px solid rgba(var(--brand-accent-r), var(--brand-accent-g), var(--brand-accent-b), 0.5);
+}
+
+.bubbleAgent .bubbleMeta {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.bubbleMeta {
+  font-size: 11px;
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+
+.compose {
+  flex-shrink: 0;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-card);
+}
+
+.composeInput {
+  width: 100%;
+}
+
+.composeRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.emptyThread {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  padding: 48px 24px;
+  text-align: center;
+  font-size: 14px;
+  min-height: 320px;
+}
+
+.loadOlder {
+  align-self: center;
+  margin-bottom: 4px;
+}
+
+.loadOlderErr {
+  color: var(--error);
+  font-size: 12px;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}

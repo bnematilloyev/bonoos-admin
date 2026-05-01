@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageCircle, Search } from 'lucide-react';
 import { Badge, Button, Card, Input, Modal, PageHeader, Pagination, Skeleton } from '../../components/ui';
 import { useAdminUsers } from '../../hooks/useApi';
 import { formatIsoDateTime, formatIsoDateOnly } from '../../utils/adminDisplay';
@@ -101,7 +102,18 @@ export const UsersPage = () => {
                       <td>{formatIsoDateOnly(row.birthday)}</td>
                       <td className={styles.nowrap}>{formatIsoDateTime(row.created_at)}</td>
                       <td>
-                        <Button size="sm" variant="ghost" onClick={() => setDetailUser(row)}>Batafsil</Button>
+                        <div className={styles.actions}>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            type="button"
+                            leftIcon={<MessageCircle size={16} />}
+                            onClick={() => navigate(`/chat?user=${row.id}`)}
+                          >
+                            Chat
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setDetailUser(row)}>Batafsil</Button>
+                        </div>
                       </td>
                     </tr>
                   ))}

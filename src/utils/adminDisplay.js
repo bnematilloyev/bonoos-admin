@@ -16,6 +16,18 @@ export function formatIsoDateOnly(iso) {
   return d.toLocaleDateString('uz-UZ');
 }
 
+/** Chat xabarlari: soat va daqiqa (24 soat). @param {unknown} iso */
+export function formatIsoTime(iso) {
+  if (iso == null || iso === '') return '—';
+  const d = new Date(String(iso));
+  if (Number.isNaN(d.getTime())) return String(iso);
+  return d.toLocaleTimeString('uz-UZ', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
 /** So‘m (UZS) — API dagi butun/ kasr summalar */
 export function formatUzs(amount) {
   if (amount == null || amount === '') return '—';

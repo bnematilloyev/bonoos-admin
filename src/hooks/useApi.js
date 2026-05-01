@@ -12,6 +12,7 @@ import {
   challengeTypesApi,
   challengesApi,
   notificationsApi,
+  chatApi,
   plansApi,
   questionsApi,
   quotesApi,
@@ -183,6 +184,64 @@ export const useAdminUsers = (params, enabled = true) =>
     queryFn: () => adminUsersApi.list(params || {}),
     enabled,
   });
+
+const DEFAULT_CHAT_CONV_LIMIT = 50;
+
+export const useChatConversations = (params = {}) =>
+  useQuery({
+    queryKey: ['chat-conversations', params],
+    queryFn: async () => {
+      const r = await chatApi.listConversations(params);
+      return r.items;
+    },
+  });
+
+/** limit: default 50, max 200; order: server-side DESC (keyset: id DESC). */
+export const useChatConversationsInfinite = ({ limit: limitIn, order: orderIn } = {}) => {
+  const limit =
+    typeof limitIn === 'number' && limitIn > 0 ? Math.min(Math.floor(limitIn), 200) : DEFAULT_CHAT_CONV_LIMIT;
+  const order = orderIn === 'created_at' ? 'created_at' : 'updated_at';
+
+  return useInfiniteQuery({
+    queryKey: ['chat-conversations', 'infinite', { limit, order }],
+    queryFn: ({ pageParam }) =>
+      chatApi.listConversations({
+        limit,
+        offset: pageParam,
+        order,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _pages, lastPageParam) => {
+      const items = lastPage.items;
+      if (!items.length || items.length < limit) return undefined;
+      return lastPageParam + items.length;
+    },
+  });
+};
+
+export const useChatMessages = (conversationId) =>
+  useQuery({
+    queryKey: ['chat-messages', conversationId],
+    queryFn: () =>
+      chatApi.listMessages({
+        conversationId,
+        limit: 50,
+        beforeId: 0,
+      }),
+    enabled: Boolean(conversationId),
+    select: (data) => [...data].sort((a, b) => Number(a.id) - Number(b.id)),
+  });
+
+export const useSendChatMessage = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: chatApi.sendMessage,
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: ['chat-messages', vars.conversationId] });
+      qc.invalidateQueries({ queryKey: ['chat-conversations'] });
+    },
+  });
+};
 
 export const useChallengeActionsList = (params, enabled = true) =>
   useQuery({

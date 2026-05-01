@@ -7,7 +7,7 @@ const API_BASE_URL =
     : import.meta.env.DEV
       ? ''
       : 'https://api.vibrant.uz';
-const X_UUID =
+export const X_UUID =
   import.meta.env.VITE_X_UUID || '810da8fa-72d8-4a0c-81d8-3a740fe5d18e';
 
 const AUTH_DEVICE_ID = 'web-admin';
@@ -310,6 +310,91 @@ export const adminUsersApi = {
     };
   },
 };
+
+/**
+ * Admin chat (REST). Bearer admin JWT + x-uuid — apiClient orqali.
+ *
+ * WebSocket (101 handshake): Postman sarlavha yuboradi; brauzer `WebSocket` API da buni qila olmaydi.
+ * Shuning uchun query da `access_token` va `x_uuid` beriladi:
+ * - `npm run dev`: Vite proxy ularni upstream ga `Authorization` / `x-uuid` qilib qo‘yadi (Postman bilan bir xil).
+ * - Production: to‘g‘ridan-to‘g‘ri `wss://api...` da backend query ni o‘qishi yoki
+ *   admin domenida `/api` proxy (nginx) sarlavha qo‘shishi kerak; yoki `VITE_WS_RELATIVE=1` + bir xil hostda API proxy.
+ */
+export const chatApi = {
+  /**
+   * @param {{ limit?: number, offset?: number, order?: 'updated_at'|'created_at' }} [params]
+   * @returns {Promise<{ items: object[], total?: number }>}
+   */
+  listConversations: async (params = {}) => {
+    const response = await apiClient.get('/api/v1/admin/chat/conversations', { params });
+    const body = response.data;
+    const d = body?.data;
+    const items = Array.isArray(d) ? d : [];
+    const totalRaw = body?.total;
+    const total = Number(totalRaw);
+    return {
+      items,
+      ...(Number.isFinite(total) ? { total } : {}),
+    };
+  },
+  /**
+   * @param {{ conversationId: number|string, limit?: number, beforeId?: number|string }} p
+   * before_id: mavjud xabarlarning eng kichik id sidan oldingilar
+   */
+  listMessages: async ({ conversationId, limit = 50, beforeId = 0 }) => {
+    const response = await apiClient.get('/api/v1/admin/chat/messages', {
+      params: {
+        conversation_id: conversationId,
+        limit,
+        before_id: beforeId,
+      },
+    });
+    const d = response.data?.data;
+    return Array.isArray(d) ? d : [];
+  },
+  /** @param {{ conversationId: number|string, content: string }} p */
+  sendMessage: async ({ conversationId, content }) => {
+    const response = await apiClient.post('/api/v1/admin/chat/messages', {
+      conversation_id: conversationId,
+      content,
+    });
+    return response.data?.data;
+  },
+};
+
+/** @param {number|string} conversationId */
+export function getAdminChatWebSocketUrl(conversationId) {
+  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('access_token') : '';
+
+  let wsOrigin;
+  const explicit = import.meta.env.VITE_WS_BASE_URL;
+  const wsRelative =
+    import.meta.env.VITE_WS_RELATIVE === 'true' || import.meta.env.VITE_WS_RELATIVE === '1';
+
+  if (explicit) {
+    wsOrigin = explicit.replace(/\/$/, '');
+  } else if (wsRelative && typeof window !== 'undefined') {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    wsOrigin = `${proto}//${window.location.host}`;
+  } else {
+    const api = import.meta.env.VITE_API_BASE_URL;
+    if (api !== undefined && api !== '') {
+      wsOrigin = api.replace(/^http/, 'ws').replace(/\/$/, '');
+    } else if (import.meta.env.DEV && typeof window !== 'undefined') {
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsOrigin = `${proto}//${window.location.host}`;
+    } else {
+      wsOrigin = 'wss://api.vibrant.uz';
+    }
+  }
+
+  const qs = new URLSearchParams();
+  qs.set('conversation_id', String(conversationId));
+  qs.set('x_uuid', X_UUID);
+  if (token) qs.set('access_token', token);
+
+  return `${wsOrigin}/api/v1/admin/chat/ws?${qs.toString()}`;
+}
 
 export const challengeActionsApi = {
   /**
