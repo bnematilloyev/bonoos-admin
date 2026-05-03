@@ -1,0 +1,852 @@
+{
+	"info": {
+		"_postman_id": "5a251edb-d8a2-4e89-9262-aee0bc972b96",
+		"name": "Bonoos Chat API (REST + WebSocket)",
+		"description": "Bonoos Chat flow — Postman collection.\n\nUMUMIY\n- /api/v1: sarlavha `x-uuid: {{x_uuid}}`.\n- Himoya: `Authorization: Bearer {{client_access_token}}` yoki `Bearer {{admin_access_token}}`.\n- WebSocket URL: `{{wsBaseUrl}}/api/v1/.../chat/ws?conversation_id={{conversation_id}}`\n\nESLATMA\n- Tokenlarni olish uchun asosiy collection (`docs/bonoos_api.postman_collection.json`)dagi Auth endpointlardan foydalaning va tokenlarni shu collection variables’ga qo‘ying.\n",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34072731",
+		"_collection_link": "https://botirs-team.postman.co/workspace/soqqa-projects~89abe064-fa0a-461f-91a5-a90b7d0d0c32/collection/34072731-5a251edb-d8a2-4e89-9262-aee0bc972b96?action=share&source=collection_link&creator=34072731"
+	},
+	"item": [
+		{
+			"name": "01 - Client Chat (JWT required)",
+			"item": [
+				{
+					"name": "Create or get conversation (user -> admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{client_access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"admin_id\": {{admin_id}}\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/client/chat/conversations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"client",
+								"chat",
+								"conversations"
+							]
+						},
+						"description": "Yangi conversation yaratadi yoki mavjudini qaytaradi."
+					},
+					"response": [
+						{
+							"name": "Create or get conversation (user -> admin)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-uuid",
+										"value": "{{x_uuid}}"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{client_access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"admin_id\": {{admin_id}}\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/client/chat/conversations",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"client",
+										"chat",
+										"conversations"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.24.0 (Ubuntu)"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Apr 2026 20:18:29 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "131"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "https://admin.vibrant.uz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 4,\n        \"user_id\": 1,\n        \"admin_id\": 2,\n        \"status\": \"open\",\n        \"created_at\": \"2026-04-29T20:18:29Z\",\n        \"updated_at\": \"2026-04-29T20:18:29Z\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "List my conversations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{client_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/client/chat/conversations?limit=50",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"client",
+								"chat",
+								"conversations"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List my conversations",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-uuid",
+										"value": "{{x_uuid}}"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{client_access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/client/chat/conversations?limit=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"client",
+										"chat",
+										"conversations"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.24.0 (Ubuntu)"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Apr 2026 20:19:55 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "133"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "https://admin.vibrant.uz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 4,\n            \"user_id\": 1,\n            \"admin_id\": 2,\n            \"status\": \"open\",\n            \"created_at\": \"2026-04-29T20:18:29Z\",\n            \"updated_at\": \"2026-04-29T20:19:27Z\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "List messages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{client_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/client/chat/messages?conversation_id={{conversation_id}}&limit=50&before_id=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"client",
+								"chat",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "conversation_id",
+									"value": "{{conversation_id}}"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "before_id",
+									"value": "0"
+								}
+							]
+						},
+						"description": "Pagination: before_id berilsa `id < before_id` bo‘yicha oldingi xabarlar."
+					},
+					"response": [
+						{
+							"name": "List messages",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-uuid",
+										"value": "{{x_uuid}}"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{client_access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/client/chat/messages?conversation_id={{conversation_id}}&limit=50&before_id=0",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"client",
+										"chat",
+										"messages"
+									],
+									"query": [
+										{
+											"key": "conversation_id",
+											"value": "{{conversation_id}}"
+										},
+										{
+											"key": "limit",
+											"value": "50"
+										},
+										{
+											"key": "before_id",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.24.0 (Ubuntu)"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Apr 2026 20:20:15 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "138"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "https://admin.vibrant.uz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"conversation_id\": 4,\n            \"sender_role\": 1,\n            \"sender_id\": 1,\n            \"content\": \"Salom!\",\n            \"is_read\": false,\n            \"sent_at\": \"2026-04-29T20:19:27Z\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Post message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{client_access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversation_id\": {{conversation_id}},\n  \"content\": \"Salom!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/client/chat/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"client",
+								"chat",
+								"messages"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Post message",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "x-uuid",
+										"value": "{{x_uuid}}"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{client_access_token}}"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"conversation_id\": {{conversation_id}},\n  \"content\": \"Salom!\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/client/chat/messages",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"client",
+										"chat",
+										"messages"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.24.0 (Ubuntu)"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Apr 2026 20:19:26 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "136"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "https://admin.vibrant.uz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": {\n        \"id\": 1,\n        \"conversation_id\": 4,\n        \"sender_role\": 1,\n        \"sender_id\": 1,\n        \"content\": \"Salom!\",\n        \"is_read\": false,\n        \"sent_at\": \"2026-04-29T20:19:27Z\"\n    }\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "02 - Admin Chat (JWT required)",
+			"item": [
+				{
+					"name": "List my conversations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/chat/conversations?limit=50",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"chat",
+								"conversations"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List my conversations",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-uuid",
+										"value": "{{x_uuid}}"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/admin/chat/conversations?limit=50",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"chat",
+										"conversations"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.24.0 (Ubuntu)"
+								},
+								{
+									"key": "Date",
+									"value": "Wed, 29 Apr 2026 20:20:56 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "133"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "https://admin.vibrant.uz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 4,\n            \"user_id\": 1,\n            \"admin_id\": 2,\n            \"status\": \"open\",\n            \"created_at\": \"2026-04-29T20:18:29Z\",\n            \"updated_at\": \"2026-04-29T20:19:27Z\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "List messages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/chat/messages?conversation_id={{conversation_id}}&limit=50&before_id=0",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"chat",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "conversation_id",
+									"value": "{{conversation_id}}"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "before_id",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "List messages",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "x-uuid",
+										"value": "{{x_uuid}}"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/v1/admin/chat/messages?conversation_id={{conversation_id}}&limit=50&before_id=0",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"chat",
+										"messages"
+									],
+									"query": [
+										{
+											"key": "conversation_id",
+											"value": "{{conversation_id}}"
+										},
+										{
+											"key": "limit",
+											"value": "50"
+										},
+										{
+											"key": "before_id",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Server",
+									"value": "nginx/1.24.0 (Ubuntu)"
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 30 Apr 2026 19:06:05 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Content-Length",
+									"value": "138"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "https://admin.vibrant.uz"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"data\": [\n        {\n            \"id\": 1,\n            \"conversation_id\": 4,\n            \"sender_role\": 1,\n            \"sender_id\": 1,\n            \"content\": \"Salom!\",\n            \"is_read\": false,\n            \"sent_at\": \"2026-04-29T20:19:27Z\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Post message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversation_id\": {{conversation_id}},\n  \"content\": \"Assalomu alaykum, qanday yordam bera olaman?\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/admin/chat/messages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"chat",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "03 - WebSocket (realtime)",
+			"item": [
+				{
+					"name": "Client WS connect",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{client_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{wsBaseUrl}}/api/v1/client/chat/ws?conversation_id={{conversation_id}}",
+							"host": [
+								"{{wsBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"client",
+								"chat",
+								"ws"
+							],
+							"query": [
+								{
+									"key": "conversation_id",
+									"value": "{{conversation_id}}"
+								}
+							]
+						},
+						"description": "WS message format:\n- send: {\"type\":\"send\",\"content\":\"hi\"}\n- read: {\"type\":\"read\",\"message_ids\":[1,2]}\nServer -> client:\n- {\"type\":\"message\",\"message\":{...}}\n"
+					},
+					"response": []
+				},
+				{
+					"name": "Admin WS connect",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-uuid",
+								"value": "{{x_uuid}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{wsBaseUrl}}/api/v1/admin/chat/ws?conversation_id={{conversation_id}}",
+							"host": [
+								"{{wsBaseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"chat",
+								"ws"
+							],
+							"query": [
+								{
+									"key": "conversation_id",
+									"value": "{{conversation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "wsBaseUrl",
+			"value": "ws://localhost:8080"
+		},
+		{
+			"key": "x_uuid",
+			"value": "change-me"
+		},
+		{
+			"key": "client_access_token",
+			"value": ""
+		},
+		{
+			"key": "admin_access_token",
+			"value": ""
+		},
+		{
+			"key": "admin_id",
+			"value": "1"
+		},
+		{
+			"key": "conversation_id",
+			"value": "1"
+		}
+	]
+}
