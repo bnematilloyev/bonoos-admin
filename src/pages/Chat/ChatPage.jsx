@@ -84,9 +84,7 @@ export const ChatPage = () => {
     [queryClient, selectedId]
   );
 
-  const { wsRef, isLive, wsDiagnostic, clearWsDiagnostic } = useAdminChatWebSocket(selectedId, {
-    onMessage: onWsMessage,
-  });
+  const { wsRef, isLive } = useAdminChatWebSocket(selectedId, { onMessage: onWsMessage });
 
   const {
     data: messages = [],
@@ -274,37 +272,13 @@ export const ChatPage = () => {
                       )}
                     </div>
                   </div>
-                  <Badge
-                    variant={isLive ? 'success' : 'warning'}
-                    title={
-                      isLive
-                        ? 'WebSocket ulangan'
-                        : wsDiagnostic
-                          ? `${wsDiagnostic.summary}. ${wsDiagnostic.hint}`
-                          : 'WebSocket ulanmoqda yoki qayta urinilmoqda (tafsilot: konsol yoki pastdagi blok)'
-                    }
-                  >
+                  <Badge variant={isLive ? 'success' : 'warning'} title={isLive ? 'WebSocket ulangan' : 'WebSocket qayta ulanmoqda'}>
                     <span className={chatStyles.liveBadge}>
                       {isLive ? <Wifi size={14} /> : <WifiOff size={14} />}
                       {isLive ? 'Real-time' : 'WS…'}
                     </span>
                   </Badge>
                 </div>
-
-                {wsDiagnostic && !isLive && (
-                  <div className={chatStyles.wsDiagnostic} role="status">
-                    <div className={chatStyles.wsDiagnosticHead}>
-                      <span className={chatStyles.wsDiagnosticTitle}>WebSocket xatosi</span>
-                      <Button type="button" size="sm" variant="secondary" onClick={clearWsDiagnostic}>
-                        Yashirish
-                      </Button>
-                    </div>
-                    <pre className={chatStyles.wsDiagnosticBody}>{wsDiagnostic.fullText}</pre>
-                    <p className={chatStyles.wsDiagnosticHint}>
-                      Konsolda token yashirilgan URL va qo‘shimcha maydonlar (faqat dev rejimida) ham chiqadi.
-                    </p>
-                  </div>
-                )}
 
                 <div className={chatStyles.messages}>
                   {msgError && (
