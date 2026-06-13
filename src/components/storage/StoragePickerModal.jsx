@@ -87,7 +87,7 @@ export function StoragePickerModal({
   onClose,
   onSelect,
   title = 'Fayl tanlash',
-  subtitle = 'Yuklash, papkalar bo‘ylab yurish yoki fayl tanlash.',
+  subtitle = '',
   initialPrefix = '',
   fileFilter,
   localUploadAccept,
@@ -297,6 +297,10 @@ export function StoragePickerModal({
     if (!open) return;
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
+      if (deleteConfirm) {
+        setDeleteConfirm(null);
+        return;
+      }
       if (newFolderOpen) {
         setNewFolderOpen(false);
         setFolderError('');
@@ -306,7 +310,7 @@ export function StoragePickerModal({
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, onClose, newFolderOpen]);
+  }, [open, onClose, newFolderOpen, deleteConfirm]);
 
   if (!open) return null;
 
@@ -357,53 +361,35 @@ export function StoragePickerModal({
               {loadingBuckets && !bucket && (
                 <div className={styles.bucketsLoading}>
                   <Loader2 size={18} className={styles.spinner} aria-hidden />
-                  <span>Storage ulanmoqda…</span>
+                  <span>Yuklanmoqda…</span>
                 </div>
               )}
 
               {showLocalUpload && (
-                <div className={styles.localUploadPanel}>
-                  <div className={styles.localUploadTop}>
-                    <div className={styles.localUploadIcon}>
-                      <Upload size={20} strokeWidth={2} aria-hidden />
-                    </div>
-                    <div>
-                      <h3 className={styles.localUploadTitle}>Kompyuterdan yuklash</h3>
-                      {localUploadHint ? (
-                        <p className={styles.localUploadHint}>{localUploadHint}</p>
-                      ) : (
-                        <p className={styles.localUploadHint}>
-                          Joriy papkaga yuklanadi; agar bosh papkadasiz, avtomatik prefix ishlatiladi.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div className={styles.localUploadActions}>
-                    <input
-                      ref={localFileRef}
-                      type="file"
-                      accept={localUploadAccept}
-                      className={styles.hiddenFileInput}
-                      onChange={onLocalFileChange}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      leftIcon={<Upload size={17} />}
-                      isLoading={uploadMutation.isPending}
-                      aria-label="Kompyuterdan fayl tanlash"
-                      onClick={() => localFileRef.current?.click()}
-                    >
-                      Fayl tanlash va yuklash
-                    </Button>
-                  </div>
+                <div className={styles.localUploadCompact}>
+                  <input
+                    ref={localFileRef}
+                    type="file"
+                    accept={localUploadAccept}
+                    className={styles.hiddenFileInput}
+                    onChange={onLocalFileChange}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    leftIcon={<Upload size={17} />}
+                    isLoading={uploadMutation.isPending}
+                    aria-label="Fayl yuklash"
+                    onClick={() => localFileRef.current?.click()}
+                  >
+                    Yuklash
+                  </Button>
                   {uploadError ? <p className={styles.uploadError}>{uploadError}</p> : null}
                 </div>
               )}
 
               <div className={styles.browsePanel}>
-                <div className={styles.browsePanelLabel}>Storage</div>
                 <div className={styles.breadcrumbRowWrap}>
                   <div className={styles.breadcrumbBar}>
                     <nav className={styles.breadcrumb} aria-label="Papka yo‘li">
@@ -591,9 +577,7 @@ export function StoragePickerModal({
 
                   {isEmpty && !bucketsError && (
                     <div className={styles.empty}>
-                      {buckets.length === 0
-                        ? 'Bucket topilmadi yoki storage sozlanmagan.'
-                        : 'Bu yerda papka yoki fayl yo‘q (yoki filtr mos kelmaydi).'}
+                      {buckets.length === 0 ? 'Storage topilmadi' : 'Fayl yo‘q'}
                     </div>
                   )}
                 </>
@@ -604,13 +588,13 @@ export function StoragePickerModal({
         </div>
 
         <div className={styles.footer}>
-          <div className={styles.footerHint}>
-            {selected?.key ? (
+          {selected?.key ? (
+            <div className={styles.footerHint}>
               <span title={selected.key}>{selected.key.split('/').pop() || selected.key}</span>
-            ) : (
-              'Faylni bosing, ikki marta bosing yoki yuqoridan yuklang'
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className={styles.footerHint} />
+          )}
           <div className={styles.footerActions}>
             <Button type="button" variant="secondary" onClick={onClose}>
               Bekor
@@ -625,22 +609,14 @@ export function StoragePickerModal({
 
     {deleteConfirm && (
       <ConfirmModal
+        zIndex={1300}
+        showAffirmation={false}
         title={deleteConfirm.type === 'file' ? 'Faylni o‘chirish' : 'Papkani o‘chirish'}
         message={
           deleteConfirm.type === 'file' ? (
-            <>
-              Quyidagi fayl butunlay o‘chiriladi (storage dan):
-              <br />
-              <code className={styles.deleteConfirmKey}>{deleteConfirm.obj.key}</code>
-            </>
+            <code className={styles.deleteConfirmKey}>{deleteConfirm.obj.key.split('/').pop() || deleteConfirm.obj.key}</code>
           ) : (
-            <>
-              Papka o‘chiriladi: <strong>{deleteConfirm.label}</strong>
-              <br />
-              <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                Ichidagi barcha fayllar ham yo‘qolishi mumkin — ehtiyotkor bo‘ling.
-              </span>
-            </>
+            <strong>{deleteConfirm.label}</strong>
           )
         }
         onClose={() => setDeleteConfirm(null)}

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { MessageCircle, RefreshCw, Send, User, Wifi, WifiOff } from 'lucide-react';
+import { MessageCircle, ArrowLeft, RefreshCw, Send, User, Wifi, WifiOff } from 'lucide-react';
 import { Badge, Button, Card, PageHeader, Skeleton, Textarea } from '../../components/ui';
 import { useChatConversationsInfinite, useChatMessages, useSendChatMessage } from '../../hooks/useApi';
 import { useAdminChatWebSocket } from '../../hooks/useAdminChatWebSocket';
@@ -50,6 +50,16 @@ export const ChatPage = () => {
   const [draft, setDraft] = useState('');
   const [loadOlderError, setLoadOlderError] = useState('');
   const [loadingOlder, setLoadingOlder] = useState(false);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 960px)').matches : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 960px)');
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
 
   const {
     data: convPages,
@@ -71,6 +81,14 @@ export const ChatPage = () => {
     const found = conversations.find((c) => Number(c.user_id) === uid);
     if (found) setSelectedId(found.id);
   }, [preUserId, conversations]);
+
+  const selectConversation = useCallback((id) => {
+    setSelectedId(id);
+  }, []);
+
+  const backToList = useCallback(() => {
+    setSelectedId(null);
+  }, []);
 
   const onWsMessage = useCallback(
     (msg) => {
@@ -181,24 +199,75 @@ export const ChatPage = () => {
     }
   };
 
-  return (
-    <div className={`${styles.page} ${chatStyles.chatPage}`}>
-      <PageHeader
-        title="Mijozlar chat"
-        actions={
-          <Button variant="secondary" leftIcon={<RefreshCw size={18} />} onClick={() => refetchConversations()}>
-            Yangilash
+  const showMobileThread = isMobile && selectedId;
+  const showMobileListFull = isMobile && !selectedId;
+
+  const convListContent = convLoading ? (
+    <div className={chatStyles.skeletonStack}>
+      {Array.from({ length: 6 }, (_, i) => (
+        <Skeleton key={i} height={56} />
+      ))}
+    </div>
+  ) : conversations.length === 0 ? (
+    <p className={chatStyles.hint}>Hozircha suhbat yo‘q.</p>
+  ) : (
+    <div className={chatStyles.convList}>
+      {conversations.map((c) => {
+        const st = String(c.status || 'open').toLowerCase();
+        const open = st === 'open';
+        return (
+          <button
+            key={c.id}
+            type="button"
+            className={`${chatStyles.convBtn} ${Number(selectedId) === Number(c.id) ? chatStyles.convBtnActive : ''}`}
+            onClick={() => selectConversation(c.id)}
+          >
+            <div className={chatStyles.convBtnTop}>
+              <span className={chatStyles.convTitle}>{conversationTitle(c)}</span>
+              <Badge variant={open ? 'success' : 'error'} className={chatStyles.convStatus}>
+                {open ? 'Ochiq' : 'Yopiq'}
+              </Badge>
+            </div>
+            <div className={chatStyles.convMeta}>{conversationListMeta(c)}</div>
+          </button>
+        );
+      })}
+      {hasNextPage && (
+        <div className={chatStyles.listLoadMore}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => fetchNextPage()}
+            isLoading={isFetchingNextPage}
+            disabled={isFetchingNextPage}
+          >
+            Yana yuklash
           </Button>
-        }
-      />
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className={`${styles.page} ${chatStyles.chatPage} ${showMobileThread ? chatStyles.chatPageThread : ''}`}>
+      {(!isMobile || !selectedId) && (
+        <PageHeader
+          title="Mijozlar suhbati"
+          actions={
+            <Button variant="secondary" leftIcon={<RefreshCw size={18} />} onClick={() => refetchConversations()}>
+              Yangilash
+            </Button>
+          }
+        />
+      )}
 
       <div className={chatStyles.shell}>
         {convError && (
           <p style={{ color: 'var(--error)', fontSize: 14 }}>{extractApiError(convErr)}</p>
         )}
 
-        <div className={chatStyles.grid}>
-          <Card className={chatStyles.listCard}>
+        <div className={`${chatStyles.grid} ${selectedId ? chatStyles.hasThread : ''}`}>
+          <Card className={`${chatStyles.listCard} ${showMobileListFull ? chatStyles.listCardFull : ''}`}>
             <div className={chatStyles.listCardHead}>
               <MessageCircle size={18} className={chatStyles.listCardIcon} />
               <span className={chatStyles.listCardTitle}>Suhbatlar</span>
@@ -206,60 +275,26 @@ export const ChatPage = () => {
                 {hasNextPage ? `${conversations.length}+` : conversations.length}
               </Badge>
             </div>
-            {convLoading ? (
-              <div className={chatStyles.skeletonStack}>
-                {Array.from({ length: 6 }, (_, i) => (
-                  <Skeleton key={i} height={56} />
-                ))}
-              </div>
-            ) : conversations.length === 0 ? (
-              <p className={chatStyles.hint}>Hozircha suhbat yo‘q.</p>
-            ) : (
-              <div className={chatStyles.convList}>
-                {conversations.map((c) => {
-                  const st = String(c.status || 'open').toLowerCase();
-                  const open = st === 'open';
-                  return (
-                    <button
-                      key={c.id}
-                      type="button"
-                      className={`${chatStyles.convBtn} ${Number(selectedId) === Number(c.id) ? chatStyles.convBtnActive : ''}`}
-                      onClick={() => setSelectedId(c.id)}
-                    >
-                      <div className={chatStyles.convBtnTop}>
-                        <span className={chatStyles.convTitle}>{conversationTitle(c)}</span>
-                        <Badge variant={open ? 'success' : 'error'} className={chatStyles.convStatus}>
-                          {open ? 'Ochiq' : 'Yopiq'}
-                        </Badge>
-                      </div>
-                      <div className={chatStyles.convMeta}>{conversationListMeta(c)}</div>
-                    </button>
-                  );
-                })}
-                {hasNextPage && (
-                  <div className={chatStyles.listLoadMore}>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => fetchNextPage()}
-                      isLoading={isFetchingNextPage}
-                      disabled={isFetchingNextPage}
-                    >
-                      Yana yuklash
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
+            {convListContent}
           </Card>
 
           <Card className={chatStyles.threadWrap}>
             {!selectedId ? (
-              <div className={chatStyles.emptyThread}>Chapdan suhbat tanlang.</div>
+              !isMobile && <div className={chatStyles.emptyThread}>Chapdan suhbat tanlang.</div>
             ) : (
               <div className={chatStyles.threadInner}>
                 <div className={chatStyles.threadHeader}>
                   <div className={chatStyles.threadHeaderMain}>
+                    {isMobile && (
+                      <button
+                        type="button"
+                        className={chatStyles.mobileListBtn}
+                        aria-label="Suhbatlar ro‘yxati"
+                        onClick={backToList}
+                      >
+                        <ArrowLeft size={20} />
+                      </button>
+                    )}
                     <div className={chatStyles.threadAvatar}>
                       <User size={18} />
                     </div>

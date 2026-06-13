@@ -113,7 +113,7 @@ export const Badge = ({ children, variant = 'default', className = '' }) => (
 );
 
 /* ─── Modal ─── */
-export const Modal = ({ title, children, onClose, footer, size = 'md', className = '' }) => {
+export const Modal = ({ title, children, onClose, footer, size = 'md', className = '', zIndex }) => {
   const titleId = useId();
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') onClose?.(); };
@@ -124,7 +124,12 @@ export const Modal = ({ title, children, onClose, footer, size = 'md', className
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className={styles.modalBackdrop} role="presentation" onClick={onClose}>
+    <div
+      className={styles.modalBackdrop}
+      role="presentation"
+      style={zIndex != null ? { zIndex } : undefined}
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
@@ -154,12 +159,14 @@ export const FormModal = ({
   isLoading = false,
   submitLabel = 'Saqlash',
   size = 'md',
+  zIndex,
   children,
 }) => (
   <Modal
     title={title}
     onClose={onClose}
     size={size}
+    zIndex={zIndex}
     footer={
       <>
         <Button type="button" variant="secondary" onClick={onClose}>Bekor</Button>
@@ -184,11 +191,13 @@ export const ConfirmModal = ({
   variant = 'danger',
   /** false bo'lsa faqat message ko'rsatiladi */
   showAffirmation = true,
+  zIndex,
 }) => (
   <Modal
     title={title}
     onClose={onClose}
     size="sm"
+    zIndex={zIndex}
     footer={
       <>
         <Button type="button" variant="secondary" onClick={onClose}>Bekor</Button>

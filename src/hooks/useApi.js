@@ -16,6 +16,7 @@ import {
   plansApi,
   questionsApi,
   quotesApi,
+  referenceDataApi,
   storageApi,
   topicsApi,
   uploadApi,
@@ -176,6 +177,27 @@ export const useAnalyticsSummary = () =>
   useQuery({
     queryKey: ['analytics-summary'],
     queryFn: analyticsApi.summary,
+  });
+
+export const useRegions = () =>
+  useQuery({
+    queryKey: ['regions'],
+    queryFn: referenceDataApi.regions,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useActivities = () =>
+  useQuery({
+    queryKey: ['activities'],
+    queryFn: referenceDataApi.activities,
+    staleTime: 5 * 60 * 1000,
+  });
+
+export const useIncomeRanges = () =>
+  useQuery({
+    queryKey: ['income-ranges'],
+    queryFn: referenceDataApi.incomeRanges,
+    staleTime: 5 * 60 * 1000,
   });
 
 export const useAdminUsers = (params, enabled = true) =>

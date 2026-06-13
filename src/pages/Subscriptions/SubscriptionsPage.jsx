@@ -85,7 +85,7 @@ export const SubscriptionsPage = () => {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <th>#</th>
                     <th>User</th>
                     <th>Tarif</th>
                     <th>Boshlanish</th>
@@ -96,13 +96,13 @@ export const SubscriptionsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((row) => {
+                  {items.map((row, index) => {
                     const st = subscriptionStatusLabel(row.status);
                     return (
                       <tr key={row.id}>
-                        <td>{row.id}</td>
-                        <td>{row.user_id}</td>
-                        <td>{row.plan_name || row.plan_id}</td>
+                        <td>{offset + index + 1}</td>
+                        <td>{row.user_full_name || row.user_id || '—'}</td>
+                        <td>{row.plan_name || row.plan_id || '—'}</td>
                         <td className={styles.nowrap}>{formatIsoDateTime(row.start_at)}</td>
                         <td className={styles.nowrap}>{formatIsoDateTime(row.end_at)}</td>
                         <td><Badge variant={st.variant}>{st.text}</Badge></td>
@@ -126,7 +126,7 @@ export const SubscriptionsPage = () => {
 
       {editRow && (
         <FormModal
-          title="Obunani tahrirlash"
+          title={`Obuna #${editRow.id}${editRow.user_full_name ? ` · ${editRow.user_full_name}` : ''}`}
           onClose={() => setEditRow(null)}
           onSubmit={save}
           isLoading={patchSub.isPending}

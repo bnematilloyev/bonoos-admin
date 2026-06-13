@@ -27,15 +27,15 @@ import styles from './layout.module.css';
 const navItems = [
   { path: '/analytics', icon: BarChart3, label: 'Analitika' },
   { path: '/users', icon: Users, label: 'Foydalanuvchilar' },
-  { path: '/chat', icon: MessageCircle, label: 'Mijozlar chat' },
+  { path: '/chat', icon: MessageCircle, label: 'Mijozlar suhbati' },
   // { path: '/challenge-monitoring', icon: Activity, label: 'Challenge monitoring' },
-  { path: '/categories', icon: FolderTree, label: 'Categories' },
-  { path: '/topics', icon: MessagesSquare, label: 'Topics / Questions' },
-  { path: '/plans', icon: CreditCard, label: 'Plans' },
+  { path: '/categories', icon: FolderTree, label: 'Kategoriyalar' },
+  { path: '/topics', icon: MessagesSquare, label: 'Mavzular va savollar' },
+  { path: '/plans', icon: CreditCard, label: 'Tariflar' },
   { path: '/subscriptions', icon: RefreshCw, label: 'Obunalar' },
   { path: '/payments', icon: Banknote, label: 'To‘lovlar' },
   { path: '/notifications', icon: Bell, label: 'Bildirishnomalar' },
-  { path: '/quotes', icon: Quote, label: 'Quotes' },
+  { path: '/quotes', icon: Quote, label: 'Iqtiboslar' },
   // { path: '/challenges', icon: Trophy, label: 'Challenge’lar' },
 ];
 
@@ -64,17 +64,17 @@ export const Sidebar = () => {
             </div>
             {!sidebarCollapsed && <span className={styles.logoText}>BONOOS ADMIN</span>}
           </div>
-          <button className={styles.mobileClose} onClick={toggleSidebar} aria-label="Close sidebar">
+          <button className={styles.mobileClose} onClick={toggleSidebar} aria-label="Yon panelni yopish">
             <X size={20} />
           </button>
-          <button className={styles.collapseBtn} onClick={toggleCollapsed} aria-label="Collapse sidebar">
+          <button className={styles.collapseBtn} onClick={toggleCollapsed} aria-label="Yon panelni yig‘ish">
             {sidebarCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           </button>
         </div>
 
         <nav className={styles.nav}>
           <div className={styles.navSection}>
-            {!sidebarCollapsed && <span className={styles.navLabel}>Admin</span>}
+            {!sidebarCollapsed && <span className={styles.navLabel}>Boshqaruv</span>}
             <ul className={styles.navList}>
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -129,7 +129,7 @@ export const Header = () => {
   return (
     <header className={styles.header}>
       <div className={styles.headerLeft}>
-        <button className={styles.menuBtn} onClick={toggleSidebar} aria-label="Toggle menu">
+        <button className={styles.menuBtn} onClick={toggleSidebar} aria-label="Menyuni ochish">
           <Menu size={22} />
         </button>
       </div>
@@ -137,7 +137,7 @@ export const Header = () => {
         <NavLink to="/profile" className={styles.headerUser} title="Profil">
           <div className={styles.headerUserInfo}>
             <span className={styles.headerUserName}>{user?.username || 'admin'}</span>
-            <span className={styles.headerUserRole}>Bonoos Admin</span>
+            <span className={styles.headerUserRole}>Bonoos admin</span>
           </div>
           <div className={styles.headerAvatar}>{user?.username?.charAt(0)?.toUpperCase() || 'A'}</div>
         </NavLink>

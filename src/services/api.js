@@ -293,9 +293,36 @@ export const analyticsApi = {
   },
 };
 
+/** Viloyat, faoliyat, daromad — public ro‘yxatlar (x-uuid) */
+export const referenceDataApi = {
+  regions: async () => {
+    const response = await apiClient.get('/api/v1/regions');
+    return normalizeList(response.data?.data);
+  },
+  activities: async () => {
+    const response = await apiClient.get('/api/v1/activities');
+    return normalizeList(response.data?.data);
+  },
+  incomeRanges: async () => {
+    const response = await apiClient.get('/api/v1/income-ranges');
+    return normalizeList(response.data?.data);
+  },
+};
+
 export const adminUsersApi = {
   /**
-   * @param {{ limit?: number, offset?: number, phone?: string }} [params]
+   * @param {{
+   *   limit?: number,
+   *   offset?: number,
+   *   user_id?: number,
+   *   phone?: string,
+   *   email?: string,
+   *   full_name?: string,
+   *   region_id?: number,
+   *   activity_id?: number,
+   *   income?: number,
+   *   verified_email?: boolean,
+   * }} [params]
    * @returns {Promise<{ items: unknown[], total: number }>}
    */
   list: async (params = {}) => {

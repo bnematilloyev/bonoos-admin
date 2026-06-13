@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Search } from 'lucide-react';
-import { Badge, Button, Card, Input, Modal, PageHeader, Pagination, Skeleton } from '../../components/ui';
-import { useAdminUsers } from '../../hooks/useApi';
-import { formatIsoDateTime, formatIsoDateOnly } from '../../utils/adminDisplay';
+import { Badge, Button, Card, Input, Modal, PageHeader, Pagination, Select, Skeleton } from '../../components/ui';
+import { useActivities, useAdminUsers, useIncomeRanges, useRegions } from '../../hooks/useApi';
+import { formatIsoDateTime, formatIsoDateOnly, localizedNameUz } from '../../utils/adminDisplay';
 import styles from '../admin.module.css';
 
 const PAGE_SIZE = 50;
+
+const EMPTY_FILTERS = {
+  user_id: '',
+  phone: '',
+  full_name: '',
+  region_id: '',
+  activity_id: '',
+  income: '',
+};
 
 function userInitials(row) {
   const name = row.full_name || row.name || '';
@@ -16,23 +25,73 @@ function userInitials(row) {
   return String(row.phone || '').slice(-2) || '?';
 }
 
+function refSelectOptions(items) {
+  return (items || []).map((item) => ({
+    value: String(item.id),
+    label: item.name_uz || item.name_en || `#${item.id}`,
+  }));
+}
+
+function buildUserListParams(filters) {
+  const p = { limit: PAGE_SIZE, offset: filters.offset };
+  const trim = (s) => String(s ?? '').trim();
+
+  const userId = trim(filters.user_id);
+  if (userId) {
+    const n = Number(userId);
+    if (Number.isFinite(n)) p.user_id = n;
+  }
+
+  if (trim(filters.phone)) p.phone = trim(filters.phone);
+  if (trim(filters.full_name)) p.full_name = trim(filters.full_name);
+
+  if (filters.region_id) {
+    const n = Number(filters.region_id);
+    if (Number.isFinite(n)) p.region_id = n;
+  }
+  if (filters.activity_id) {
+    const n = Number(filters.activity_id);
+    if (Number.isFinite(n)) p.activity_id = n;
+  }
+  if (filters.income) {
+    const n = Number(filters.income);
+    if (Number.isFinite(n)) p.income = n;
+  }
+
+  return p;
+}
+
 export const UsersPage = () => {
-  const [phoneDraft, setPhoneDraft] = useState('');
-  const [query, setQuery] = useState({ limit: PAGE_SIZE, offset: 0 });
+  const navigate = useNavigate();
+  const [draft, setDraft] = useState(EMPTY_FILTERS);
+  const [query, setQuery] = useState({ ...EMPTY_FILTERS, offset: 0 });
   const [detailUser, setDetailUser] = useState(null);
 
-  const params = useMemo(() => {
-    const p = { limit: query.limit, offset: query.offset };
-    if (query.phone) p.phone = query.phone;
-    return p;
-  }, [query]);
+  const { data: regions = [] } = useRegions();
+  const { data: activities = [] } = useActivities();
+  const { data: incomeRanges = [] } = useIncomeRanges();
+
+  const regionOptions = useMemo(() => refSelectOptions(regions), [regions]);
+  const activityOptions = useMemo(() => refSelectOptions(activities), [activities]);
+  const incomeOptions = useMemo(() => refSelectOptions(incomeRanges), [incomeRanges]);
+
+  const params = useMemo(() => buildUserListParams(query), [query]);
 
   const { data, isLoading, isError, error } = useAdminUsers(params);
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
 
-  const applyFilter = () => {
-    setQuery((q) => ({ ...q, offset: 0, phone: phoneDraft.trim() || undefined }));
+  const setDraftField = (key, value) => setDraft((d) => ({ ...d, [key]: value }));
+
+  const applyFilter = () => setQuery({ ...draft, offset: 0 });
+
+  const clearFilters = () => {
+    setDraft(EMPTY_FILTERS);
+    setQuery({ ...EMPTY_FILTERS, offset: 0 });
+  };
+
+  const onFilterKeyDown = (e) => {
+    if (e.key === 'Enter') applyFilter();
   };
 
   return (
@@ -40,16 +99,54 @@ export const UsersPage = () => {
       <PageHeader title="Foydalanuvchilar" description={`Jami: ${total.toLocaleString('uz-UZ')}`} />
 
       <Card>
-        <div className={styles.toolbarRow} style={{ marginBottom: 16 }}>
+        <div className={styles.userFiltersRow}>
           <Input
-            placeholder="Telefon raqami bo'yicha qidirish..."
-            leftIcon={<Search size={18} />}
-            value={phoneDraft}
-            onChange={(e) => setPhoneDraft(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && applyFilter()}
-            style={{ maxWidth: 280 }}
+            label="User ID"
+            placeholder="Aniq ID"
+            value={draft.user_id}
+            onChange={(e) => setDraftField('user_id', e.target.value)}
+            onKeyDown={onFilterKeyDown}
           />
-          <Button onClick={applyFilter}>Qidirish</Button>
+          <Input
+            label="Telefon"
+            placeholder="Qisman qidirish..."
+            leftIcon={<Search size={18} />}
+            value={draft.phone}
+            onChange={(e) => setDraftField('phone', e.target.value)}
+            onKeyDown={onFilterKeyDown}
+          />
+          <Input
+            label="Ism"
+            placeholder="Qisman qidirish..."
+            value={draft.full_name}
+            onChange={(e) => setDraftField('full_name', e.target.value)}
+            onKeyDown={onFilterKeyDown}
+          />
+          <Select
+            label="Viloyat"
+            placeholder="Hammasi"
+            options={regionOptions}
+            value={draft.region_id}
+            onChange={(e) => setDraftField('region_id', e.target.value)}
+          />
+          <Select
+            label="Faoliyat"
+            placeholder="Hammasi"
+            options={activityOptions}
+            value={draft.activity_id}
+            onChange={(e) => setDraftField('activity_id', e.target.value)}
+          />
+          <Select
+            label="Daromad"
+            placeholder="Hammasi"
+            options={incomeOptions}
+            value={draft.income}
+            onChange={(e) => setDraftField('income', e.target.value)}
+          />
+          <div className={styles.userFilterActions}>
+            <Button onClick={applyFilter}>Qidirish</Button>
+            <Button variant="secondary" onClick={clearFilters}>Tozalash</Button>
+          </div>
         </div>
 
         {isError && (
@@ -98,7 +195,7 @@ export const UsersPage = () => {
                         </div>
                       </td>
                       <td className={styles.nowrap}>{row.phone || '—'}</td>
-                      <td>{row.region_id ?? '—'}</td>
+                      <td>{localizedNameUz(row.region, row.region_id)}</td>
                       <td>{formatIsoDateOnly(row.birthday)}</td>
                       <td className={styles.nowrap}>{formatIsoDateTime(row.created_at)}</td>
                       <td>
@@ -145,9 +242,9 @@ export const UsersPage = () => {
               ['Telegram ID', detailUser.telegram_id || '—'],
               ['Tug\'ilgan kun', formatIsoDateOnly(detailUser.birthday)],
               ['Bio', detailUser.bio || '—'],
-              ['Viloyat', detailUser.region_id ?? '—'],
-              ['Faoliyat', detailUser.activity_id ?? '—'],
-              ['Daromad', detailUser.income ?? '—'],
+              ['Viloyat', localizedNameUz(detailUser.region, detailUser.region_id)],
+              ['Faoliyat', localizedNameUz(detailUser.activity, detailUser.activity_id)],
+              ['Daromad', localizedNameUz(detailUser.income_range, detailUser.income)],
               ['Ro\'yxatdan', formatIsoDateTime(detailUser.created_at)],
               ['Yangilangan', formatIsoDateTime(detailUser.updated_at)],
             ].map(([k, v]) => (

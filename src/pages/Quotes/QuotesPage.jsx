@@ -171,12 +171,10 @@ export const QuotesPage = () => {
         open={storageOpen}
         onClose={() => setStorageOpen(false)}
         title="Rasm tanlash"
-        subtitle="Kompyuterdan yuklang yoki storagedan tanlang."
         initialPrefix={QUOTE_IMAGE_UPLOAD_PREFIX}
         fileFilter={quoteImageFileFilter}
         localUploadAccept="image/*"
         getUploadPrefix={() => QUOTE_IMAGE_UPLOAD_PREFIX}
-        localUploadHint="Rasm fayli tanlang"
         onSelect={(sel) => setField('image', sel.key)}
       />
 

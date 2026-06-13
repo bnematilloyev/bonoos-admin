@@ -74,7 +74,7 @@ export const PaymentsPage = () => {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    <th>#</th>
                     <th>User</th>
                     <th>Tarif</th>
                     <th>Summa</th>
@@ -86,13 +86,13 @@ export const PaymentsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {items.map((row) => {
+                  {items.map((row, index) => {
                     const st = paymentStatusLabel(row.payment_status);
                     return (
                       <tr key={row.id}>
-                        <td>{row.id}</td>
-                        <td>{row.user_id}</td>
-                        <td>{row.plan_id}</td>
+                        <td>{offset + index + 1}</td>
+                        <td>{row.user_full_name || row.user_id || '—'}</td>
+                        <td>{row.plan_name || row.plan_id || '—'}</td>
                         <td className={styles.nowrap}>{formatUzs(row.amount)}</td>
                         <td>{paymentProviderLabel(row.payment_provider)}</td>
                         <td><Badge variant={st.variant}>{st.text}</Badge></td>
@@ -117,7 +117,7 @@ export const PaymentsPage = () => {
 
       {editRow && (
         <FormModal
-          title="To'lovni tahrirlash"
+          title={`To'lov #${editRow.id}${editRow.user_full_name ? ` · ${editRow.user_full_name}` : ''}`}
           onClose={() => setEditRow(null)}
           onSubmit={save}
           isLoading={patchPay.isPending}

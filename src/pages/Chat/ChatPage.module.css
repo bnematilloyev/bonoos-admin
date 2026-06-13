@@ -33,7 +33,87 @@
   .grid {
     grid-template-columns: 1fr;
     flex: 1;
-    min-height: min(70dvh, 560px);
+    min-height: 0;
+    position: relative;
+  }
+
+  .grid:not(.hasThread) .threadWrap {
+    display: none;
+  }
+
+  .grid.hasThread .listCard {
+    display: none;
+  }
+
+  .listCardFull {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .threadWrap {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .emptyThread {
+    display: none;
+  }
+}
+
+.chatPageThread {
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+@media (max-width: 960px) {
+  .chatPage {
+    flex: 1;
+    min-height: 0;
+    gap: 16px;
+    max-width: 100%;
+  }
+
+  .chatPageThread {
+    gap: 0;
+  }
+
+  .shell {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.mobileListBtn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: -4px 0 -4px -4px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.mobileListBtn:hover {
+  background: var(--bg-hover);
+}
+
+@media (max-width: 960px) {
+  .mobileListBtn {
+    display: inline-flex;
+  }
+
+  .threadHeaderMain {
+    align-items: center;
   }
 }
 

@@ -49,6 +49,11 @@ function resolveKind(fileKey, hint) {
 
 function displayText(item) { return String(item?.text ?? item?.title ?? ''); }
 
+function fileNameFromKey(key) {
+  const base = String(key || '').split('/').pop() || '';
+  return base.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+}
+
 function formatDuration(sec) {
   if (sec == null || !Number.isFinite(sec) || sec < 0) return '—:—';
   return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
@@ -309,6 +314,22 @@ export const CategoriesPage = () => {
     catch (err) { toast(extractApiError(err), 'error'); }
   };
 
+  const handleMediaSelect = (sel) => {
+    const key = sel.key;
+    const mediaKind = isVideoKey(key) ? 'video' : 'audio';
+    setAudForm((p) => ({
+      ...p,
+      fileKey: key,
+      mediaKind,
+      text: p.text.trim() || fileNameFromKey(key),
+    }));
+    setStorageOpen(false);
+  };
+
+  const clearMedia = () => {
+    setAudForm((p) => ({ ...p, fileKey: '', mediaKind: 'audio', duration: '0' }));
+  };
+
   const confirmDeleteAudition = async () => {
     if (!deleteAuditionTarget) return;
     try {
@@ -319,7 +340,10 @@ export const CategoriesPage = () => {
   };
 
   /* Audition CRUD */
-  const openCreateAudition = () => { setAudForm({ text: '', type: '0', duration: '0', fileKey: '', mediaKind: 'audio' }); setAuditionModal('create'); };
+  const openCreateAudition = () => {
+    setAudForm({ text: '', type: '0', duration: '0', fileKey: '', mediaKind: 'audio' });
+    setAuditionModal('create');
+  };
   const openEditAudition = (item) => {
     const m = getMedia(item);
     setAudForm({
@@ -334,10 +358,16 @@ export const CategoriesPage = () => {
   const submitAudition = async (e) => {
     e.preventDefault();
     if (!selectedCategoryId) { toast('Avval kategoriya tanlang', 'error'); return; }
-    if (!audForm.text.trim()) { toast('Matn majburiy', 'error'); return; }
+    if (!audForm.text.trim()) { toast('Nom majburiy', 'error'); return; }
+
+    const key = audForm.fileKey.trim();
+    if (auditionModal === 'create' && !key) {
+      toast('Media fayl tanlang', 'error');
+      setStorageOpen(true);
+      return;
+    }
 
     const base = { category_id: selectedCategoryId, text: audForm.text.trim(), type: Number(audForm.type) || 0, duration: Math.max(0, Number(audForm.duration) || 0) };
-    const key = audForm.fileKey.trim();
     const kind = resolveKind(key, audForm.mediaKind);
 
     try {
@@ -348,12 +378,12 @@ export const CategoriesPage = () => {
           kind === 'video' ? (mp.video = key) : (mp.audio = key);
           await updateAudition.mutateAsync({ id: created.id, payload: mp });
         }
-        toast('Audition yaratildi');
+        toast('Media qo‘shildi');
       } else {
         const payload = { ...base };
         if (key) kind === 'video' ? (payload.video = key) : (payload.audio = key);
         await updateAudition.mutateAsync({ id: auditionModal.id, payload });
-        toast('Audition yangilandi');
+        toast('Media yangilandi');
       }
       setAuditionModal(null);
     } catch (err) { toast(extractApiError(err), 'error'); }
@@ -366,7 +396,7 @@ export const CategoriesPage = () => {
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
             <Button variant="secondary" leftIcon={<Plus size={18} />} onClick={openCreateCategory}>Kategoriya</Button>
-            {selectedCategoryId && <Button leftIcon={<Plus size={18} />} onClick={openCreateAudition}>Audition</Button>}
+            {selectedCategoryId && <Button leftIcon={<Plus size={18} />} onClick={openCreateAudition}>Media</Button>}
           </div>
         }
       />
@@ -401,10 +431,9 @@ export const CategoriesPage = () => {
           : auditionsLoading ? <AuditionListSkeleton />
           : auditions.length === 0 ? (
             <div className={styles.mediaEmpty}>
-              <p className={styles.mediaEmptyTitle}>Hali bu yerda media yo&apos;q</p>
-              <p className={styles.mediaEmptyHint}>Birinchi faylni qo&apos;shish uchun quyidagi tugmani bosing.</p>
+              <p className={styles.mediaEmptyTitle}>Media yo&apos;q</p>
               <Button leftIcon={<Plus size={18} />} onClick={openCreateAudition}>
-                Media qo&apos;shish
+                Qo&apos;shish
               </Button>
             </div>
           )
@@ -430,28 +459,92 @@ export const CategoriesPage = () => {
       )}
 
       {auditionModal && (
-        <FormModal title={auditionModal === 'create' ? 'Yangi audition' : 'Auditionni tahrirlash'} onClose={() => setAuditionModal(null)} onSubmit={submitAudition}
-          isLoading={createAudition.isPending || updateAudition.isPending} submitLabel={auditionModal === 'create' ? 'Yaratish' : 'Saqlash'} size="lg">
-          <Input label="Matn / nom" value={audForm.text} onChange={(e) => setAudForm((p) => ({ ...p, text: e.target.value }))} required />
-          <Input label="Tur (type)" type="number" value={audForm.type} onChange={(e) => setAudForm((p) => ({ ...p, type: e.target.value }))} />
-          <Input label="Davomiylik (soniya)" type="number" min={0} value={audForm.duration} onChange={(e) => setAudForm((p) => ({ ...p, duration: e.target.value }))} />
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>Media fayl</label>
-            <Button type="button" variant="secondary" size="sm" leftIcon={<FolderOpen size={17} />} onClick={() => setStorageOpen(true)}>Media tanlash</Button>
+        <FormModal
+          title={auditionModal === 'create' ? 'Yangi media' : 'Media tahrirlash'}
+          onClose={() => { setAuditionModal(null); setStorageOpen(false); }}
+          onSubmit={submitAudition}
+          isLoading={createAudition.isPending || updateAudition.isPending}
+          submitLabel={auditionModal === 'create' ? 'Yaratish' : 'Saqlash'}
+          size="lg"
+        >
+          <div className={styles.mediaPickBlock}>
+            <label className={styles.mediaPickLabel}>Media fayl</label>
+            {!audForm.fileKey ? (
+              <button type="button" className={styles.mediaPickEmpty} onClick={() => setStorageOpen(true)}>
+                <FolderOpen size={22} />
+                <span>Tanlash</span>
+              </button>
+            ) : (
+              <div className={styles.mediaPickSelected}>
+                <div className={styles.mediaPickSelectedHead}>
+                  <div className={styles.mediaPickFileMeta}>
+                    {resolveKind(audForm.fileKey, audForm.mediaKind) === 'video' ? (
+                      <Video size={18} className={styles.mediaPickTypeIcon} aria-hidden />
+                    ) : (
+                      <Music2 size={18} className={styles.mediaPickTypeIcon} aria-hidden />
+                    )}
+                    <span
+                      className={styles.mediaPickFileName}
+                      title={fileNameFromKey(audForm.fileKey) || audForm.fileKey}
+                    >
+                      {fileNameFromKey(audForm.fileKey) || audForm.fileKey}
+                    </span>
+                  </div>
+                  <div className={styles.mediaPickActions}>
+                    <button
+                      type="button"
+                      className={styles.iconBtn}
+                      title="Almashtirish"
+                      aria-label="Almashtirish"
+                      onClick={() => setStorageOpen(true)}
+                    >
+                      <FolderOpen size={17} />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+                      title="Olib tashlash"
+                      aria-label="Olib tashlash"
+                      onClick={clearMedia}
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                  </div>
+                </div>
+                {mediaSrc(audForm.fileKey) && resolveKind(audForm.fileKey, audForm.mediaKind) === 'video' && (
+                  <div className={styles.mediaPickPreview}>
+                    <AuditionVideoPlayer
+                      src={mediaSrc(audForm.fileKey)}
+                      auditionId="__preview__"
+                      title={audForm.text || 'Oldindan ko\'rish'}
+                      onPlayStart={() => handleVideoPlayStart('__preview__')}
+                      registerVideo={registerVideoEl}
+                    />
+                  </div>
+                )}
+                {mediaSrc(audForm.fileKey) && resolveKind(audForm.fileKey, audForm.mediaKind) === 'audio' && (
+                  <audio
+                    controls
+                    src={mediaSrc(audForm.fileKey)}
+                    preload="metadata"
+                    className={styles.mediaPickAudio}
+                    onLoadedMetadata={(e) => {
+                      const s = Math.round(e.currentTarget.duration);
+                      if (Number.isFinite(s) && s >= 0) {
+                        setAudForm((p) => (p.duration === '0' || p.duration === '' ? { ...p, duration: String(s) } : p));
+                      }
+                    }}
+                  />
+                )}
+              </div>
+            )}
           </div>
-          <Input label="Media kaliti yoki URL" value={audForm.fileKey}
-            onChange={(e) => { const v = e.target.value; setAudForm((p) => ({ ...p, fileKey: v, mediaKind: isVideoKey(v) ? 'video' : 'audio' })); }}
-            placeholder="auditions/audio/... yoki auditions/video/..." />
-          {mediaSrc(audForm.fileKey) && resolveKind(audForm.fileKey, audForm.mediaKind) === 'video' && (
-            <div style={{ maxWidth: 480 }}>
-              <AuditionVideoPlayer src={mediaSrc(audForm.fileKey)} auditionId="__preview__" title={audForm.text || 'Oldindan ko\'rish'}
-                onPlayStart={() => handleVideoPlayStart('__preview__')} registerVideo={registerVideoEl} />
-            </div>
-          )}
-          {mediaSrc(audForm.fileKey) && resolveKind(audForm.fileKey, audForm.mediaKind) === 'audio' && (
-            <audio controls src={mediaSrc(audForm.fileKey)} preload="metadata" style={{ width: '100%', maxWidth: 400, borderRadius: 8 }}
-              onLoadedMetadata={(e) => { const s = Math.round(e.currentTarget.duration); if (Number.isFinite(s) && s >= 0) setAudForm((p) => p.duration === '0' || p.duration === '' ? { ...p, duration: String(s) } : p); }} />
-          )}
+          <Input
+            label="Nom"
+            value={audForm.text}
+            onChange={(e) => setAudForm((p) => ({ ...p, text: e.target.value }))}
+            required
+          />
         </FormModal>
       )}
 
@@ -468,11 +561,16 @@ export const CategoriesPage = () => {
         />
       )}
 
-      <StoragePickerModal open={storageOpen} onClose={() => setStorageOpen(false)} title="Media tanlash" subtitle="Kompyuterdan yuklang yoki storagedan tanlang"
-        initialPrefix="" fileFilter={auditionFileFilter} localUploadAccept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.ogg,.mp4,.webm,.mov,.mkv,.m4v"
+      <StoragePickerModal
+        open={storageOpen}
+        onClose={() => setStorageOpen(false)}
+        title="Media tanlash"
+        initialPrefix={AUDITION_AUDIO_UPLOAD_PREFIX}
+        fileFilter={auditionFileFilter}
+        localUploadAccept="audio/*,video/*,.mp3,.m4a,.wav,.aac,.ogg,.mp4,.webm,.mov,.mkv,.m4v"
         getUploadPrefix={(file) => isVideoFile(file) ? AUDITION_VIDEO_UPLOAD_PREFIX : AUDITION_AUDIO_UPLOAD_PREFIX}
-        localUploadHint="Audio yoki video faylni tanlang"
-        onSelect={(sel) => setAudForm((p) => ({ ...p, fileKey: sel.key, mediaKind: isVideoKey(sel.key) ? 'video' : 'audio' }))} />
+        onSelect={handleMediaSelect}
+      />
 
       <ToastRenderer />
     </div>

@@ -88,6 +88,43 @@
   }
 }
 
+.userFiltersRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.userFiltersRow > * {
+  flex: 1 1 0;
+  min-width: 130px;
+}
+
+.userFilterActions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+  min-width: auto;
+}
+
+@media (max-width: 900px) {
+  .userFiltersRow {
+    flex-wrap: wrap;
+  }
+
+  .userFiltersRow > * {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 140px;
+  }
+
+  .userFilterActions {
+    flex: 1 1 100%;
+  }
+}
+
 /* ─── Lists ─── */
 .list {
   list-style: none;

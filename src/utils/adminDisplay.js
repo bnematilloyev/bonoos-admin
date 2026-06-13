@@ -1,5 +1,14 @@
 /** Admin API javoblarini UI da ko‘rsatish (Postman misollariga mos) */
 
+/** @param {{ name_uz?: string, name_ru?: string, name_en?: string } | null | undefined} item @param {unknown} [fallback] */
+export function localizedNameUz(item, fallback) {
+  if (item?.name_uz) return item.name_uz;
+  if (item?.name_en) return item.name_en;
+  if (item?.name_ru) return item.name_ru;
+  if (fallback != null && fallback !== '') return String(fallback);
+  return '—';
+}
+
 /** @param {unknown} iso */
 export function formatIsoDateTime(iso) {
   if (iso == null || iso === '') return '—';
